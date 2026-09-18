@@ -24,6 +24,16 @@ import { useAnchorNav } from "./hooks/useAnchorNav";
 import { useChatbot } from "./hooks/useChatbot";
 import { SECTIONS } from "./constants";
 import { cx } from "./utils/cx";
+import { scrollToSection } from "./utils/scroll";
+
+const INTRO_SEEN_KEY = "cx-intro-seen";
+const introAlreadySeen = () => {
+  try {
+    return sessionStorage.getItem(INTRO_SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
 
 /** Fixed ambient layers behind everything: color washes and two drifting blobs. */
 const Backdrop = () => (
@@ -55,9 +65,29 @@ const Backdrop = () => (
 
 function App() {
   const reduced = useReducedMotion();
-  // Skip the intro for reduced-motion users; otherwise it plays on load.
-  const [introDone, setIntroDone] = useState(() => Boolean(reduced));
-  const finishIntro = useCallback(() => setIntroDone(true), []);
+  // The intro plays once per browser session; reduced-motion users skip it.
+  const [introDone, setIntroDone] = useState(() => Boolean(reduced) || introAlreadySeen());
+  // Page entrance, decided once: wait for the intro, or fade in right away
+  // when it is skipped. Never toggled later (that would cut the animation).
+  const [pageIn] = useState(() => (reduced ? "" : introDone ? "cx-page-in-now" : "cx-page-in"));
+  const finishIntro = useCallback(() => {
+    try {
+      sessionStorage.setItem(INTRO_SEEN_KEY, "1");
+    } catch {
+      /* storage unavailable: the intro simply replays next load */
+    }
+    setIntroDone(true);
+  }, []);
+
+  // Deep links (/#work): the intro locks scrolling before the browser can
+  // jump, so apply the hash ourselves once the page is interactive.
+  useEffect(() => {
+    if (!introDone) return;
+    const id = window.location.hash.slice(1);
+    if (!id || !document.getElementById(id)) return;
+    const t = setTimeout(() => scrollToSection(id), 120);
+    return () => clearTimeout(t);
+  }, [introDone]);
 
   const activeSection = useActiveSection(SECTIONS);
   useAnchorNav();
@@ -92,7 +122,7 @@ function App() {
 
             {!introDone && <LoadingScreen onComplete={finishIntro} />}
 
-            <div className={cx("relative z-10", !reduced && "cx-page-in")}>
+            <div className={cx("relative z-10", pageIn)}>
               <Navbar activeSection={activeSection} />
               <main>
                 <Home />

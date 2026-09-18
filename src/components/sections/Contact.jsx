@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import emailjs from "emailjs-com";
+import emailjs from "@emailjs/browser";
 import { CONTACT, RESUME_LINK, SOCIAL_LINKS } from "../../constants";
 import { Magnetic } from "../ui/Magnetic";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
@@ -68,7 +68,7 @@ export const Contact = () => {
   }, [form]);
 
   useEffect(() => {
-    emailjs.init(PUBLIC_KEY);
+    emailjs.init({ publicKey: PUBLIC_KEY });
   }, []);
 
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -88,7 +88,7 @@ export const Contact = () => {
     setStatus(null);
 
     emailjs
-      .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY)
+      .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, { publicKey: PUBLIC_KEY })
       .then((result) => {
         if (result.status !== 200 && result.text !== "OK") throw new Error(`status ${result.status}`);
         setStatus({ type: "success", message: "TRANSMISSION_SUCCESSFUL: message received. I will reply shortly." });

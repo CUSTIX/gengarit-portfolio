@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import {
   ABOUT_DATA,
   BRAND,
@@ -25,7 +25,7 @@ const DEFAULT_RESPONSE =
 // (HTTP referrer + quota limits) in Google Cloud.
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
 const SYSTEM_PROMPT = `
 You are the ${BRAND.name} assistant on the portfolio site of ${BRAND.fullName} (brand: ${BRAND.name}), a ${BRAND.role} from ${BRAND.location}.
@@ -63,15 +63,18 @@ export const useChatbot = () => {
 
     try {
       if (genAI) {
-        const model = genAI.getGenerativeModel({ model: GEMINI_MODEL, systemInstruction: SYSTEM_PROMPT });
-        const chat = model.startChat({
+        const chat = genAI.chats.create({
+          model: GEMINI_MODEL,
+          config: { systemInstruction: SYSTEM_PROMPT, maxOutputTokens: 300 },
           history: messages.map((m) => ({
             role: m.role === "user" ? "user" : "model",
             parts: [{ text: m.content }],
           })),
         });
-        const result = await chat.sendMessage(text);
-        setMessages((prev) => [...prev, { role: "bot", content: result.response.text() }]);
+        const result = await chat.sendMessage({ message: text });
+        const reply = result.text?.trim();
+        if (!reply) throw new Error("empty reply");
+        setMessages((prev) => [...prev, { role: "bot", content: reply }]);
       } else {
         // No API key configured: answer from the keyword FAQ instead.
         await new Promise((r) => setTimeout(r, 600));

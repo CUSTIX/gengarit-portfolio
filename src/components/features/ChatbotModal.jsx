@@ -61,6 +61,8 @@ export const ChatbotModal = ({ open, onClose, onSend, messages, loading }) => {
     return () => {
       clearTimeout(t);
       window.removeEventListener("keydown", onKey);
+      // hand focus back to the launcher button
+      document.querySelector('[aria-controls="cx-assistant"]')?.focus();
     };
   }, [open, onClose]);
 

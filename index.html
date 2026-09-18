@@ -18,8 +18,6 @@
       rel="stylesheet"
     />
 
-    <!-- Devicon: technology logos in the Stack section -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css" />
     <!-- Remix Icon: UI glyphs -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
 
@@ -27,13 +25,16 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="CUSTIX | John Eric G. Bayer — Software Engineer" />
     <meta property="og:description" content="Full-stack software engineer building web applications, backend systems, and interactive digital experiences. Explore the engineered works." />
-    <meta property="og:image" content="/pictures/ERR-EBUS_LOGO.webp" />
+    <!-- NOTE: crawlers need an absolute URL here; set VITE_SITE_URL-style domain once deployed -->
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="CUSTIX | John Eric G. Bayer — Software Engineer" />
     <meta name="twitter:description" content="Full-stack software engineer building web applications, backend systems, and interactive digital experiences. Explore the engineered works." />
-    <meta name="twitter:image" content="/pictures/ERR-EBUS_LOGO.webp" />
+    <meta name="twitter:image" content="/og.png" />
   </head>
   <body>
     <div id="root"></div>

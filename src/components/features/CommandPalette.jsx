@@ -21,12 +21,19 @@ export const CommandPalette = ({ open, onClose }) => {
     return q ? PALETTE_ITEMS.filter((it) => it.label.toLowerCase().includes(q) || it.hint.toLowerCase().includes(q)) : PALETTE_ITEMS;
   }, [query]);
 
+  const openerRef = useRef(null);
   useEffect(() => {
     if (!open) return;
+    openerRef.current = document.activeElement;
     setQuery("");
     setActive(0);
     const t = setTimeout(() => inputRef.current?.focus(), 30);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      // hand focus back to whatever opened the palette
+      const opener = openerRef.current;
+      if (opener && typeof opener.focus === "function" && document.contains(opener)) opener.focus();
+    };
   }, [open]);
 
   const run = (item) => {
@@ -96,7 +103,7 @@ export const CommandPalette = ({ open, onClose }) => {
                 aria-activedescendant={filtered[active] ? `cmdk-${active}` : undefined}
                 className="flex-1 border-0 bg-transparent font-sans text-[14.5px] text-fg outline-none placeholder:text-[#4d596d]"
               />
-              <kbd className="rounded-md border border-slate-400/16 px-[7px] py-[3px] font-mono text-[9.5px] tracking-[0.1em] text-faint">ESC</kbd>
+              <kbd className="rounded-md border border-slate-400/16 px-[7px] py-[3px] font-mono text-[9.5px] tracking-[0.1em] text-dim">ESC</kbd>
             </div>
             <div ref={listRef} role="listbox" className="max-h-[340px] overflow-y-auto p-2">
               {filtered.map((item, i) => (

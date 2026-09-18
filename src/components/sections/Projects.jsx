@@ -85,6 +85,10 @@ const CardSwap = ({ images, logo, title }) => {
       className="relative min-h-[260px] overflow-hidden bg-[#05070a] sm:min-h-[360px] lg:min-h-[480px]"
       onMouseEnter={() => (hoverRef.current = true)}
       onMouseLeave={() => (hoverRef.current = false)}
+      onFocus={() => (hoverRef.current = true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) hoverRef.current = false;
+      }}
       role="region"
       aria-roledescription="carousel"
       aria-label={`${title} screenshots`}
@@ -295,7 +299,7 @@ const ArchiveRow = ({ project, open, onToggle }) => (
       <span
         className={cx(
           "hidden font-mono text-[10px] tracking-[0.14em] transition-colors duration-400 md:inline",
-          open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid"
+          open ? "text-accent-soft" : "text-dim group-hover:text-accent-mid"
         )}
       >
         [{pad3(project.id)}]
@@ -336,7 +340,7 @@ const ArchiveRow = ({ project, open, onToggle }) => (
           {project.badge}
         </span>
       )}
-      <span className={cx("hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 md:inline", open ? "text-accent-soft" : "text-faint group-hover:text-muted")}>
+      <span className={cx("hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 md:inline", open ? "text-accent-soft" : "text-dim group-hover:text-muted")}>
         {open ? "CLOSE" : "OPEN"}
       </span>
       <span
@@ -431,8 +435,8 @@ const Archive = () => {
                   <span className="absolute inset-[6px] animate-cx-pulse rounded-full bg-accent-deep/10" />
                   <i className="ri-folder-open-line relative animate-cx-drift text-[30px] text-[#4b6a9a] [animation-duration:5s]" aria-hidden="true" />
                 </span>
-                <div className="font-mono text-[10px] tracking-[0.2em] text-[#5b677a]">SELECT A PROJECT TO PREVIEW</div>
-                <div className="font-mono text-[9px] tracking-[0.18em] text-faint">{PROJECTS.length} SYSTEMS ARCHIVED</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-dim">SELECT A PROJECT TO PREVIEW</div>
+                <div className="font-mono text-[9px] tracking-[0.18em] text-[#5b677a]">{PROJECTS.length} SYSTEMS ARCHIVED</div>
               </motion.div>
             )}
           </AnimatePresence>

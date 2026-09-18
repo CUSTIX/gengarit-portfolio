@@ -46,14 +46,14 @@ export const FEATURED_PROJECT = {
   impact:
     "End-to-end platform connecting clients with virtual assistants, from verified hiring through active work sessions and billing.",
   tags: ["Laravel", "Blade", "Stripe", "Twilio", "Wise", "DigitalOcean", "Cloudflare"],
-  logo: "/pictures/prosupport-logo.png",
+  logo: "/pictures/prosupport-logo.webp",
   gallery: [
-    { src: "/pictures/prosupport-hero.png", alt: "ProSupport Squad hero section" },
-    { src: "/pictures/prosupport-login.png", alt: "ProSupport Squad sign in screen" },
-    { src: "/pictures/prosupport-dashboard.png", alt: "ProSupport Squad agent dashboard" },
-    { src: "/pictures/prosupport-marketplace.png", alt: "ProSupport Squad marketplace features" },
-    { src: "/pictures/prosupport-howitworks.png", alt: "ProSupport Squad how it works steps" },
-    { src: "/pictures/prosupport-why.png", alt: "ProSupport Squad why us section" },
+    { src: "/pictures/prosupport-hero.webp", alt: "ProSupport Squad hero section" },
+    { src: "/pictures/prosupport-login.webp", alt: "ProSupport Squad sign in screen" },
+    { src: "/pictures/prosupport-dashboard.webp", alt: "ProSupport Squad agent dashboard" },
+    { src: "/pictures/prosupport-marketplace.webp", alt: "ProSupport Squad marketplace features" },
+    { src: "/pictures/prosupport-howitworks.webp", alt: "ProSupport Squad how it works steps" },
+    { src: "/pictures/prosupport-why.webp", alt: "ProSupport Squad why us section" },
   ],
 };
 
@@ -133,21 +133,21 @@ export const ABOUT_DATA = {
 };
 
 export const LANGUAGES = [
-  { name: "Python", icon: "devicon-python-plain" },
-  { name: "C++", icon: "devicon-cplusplus-plain" },
-  { name: "C#", icon: "devicon-csharp-plain" },
-  { name: "Java", icon: "devicon-java-plain" },
-  { name: "JavaScript", icon: "devicon-javascript-plain" },
-  { name: "PHP", icon: "devicon-php-plain" },
+  { name: "Python", icon: "/icons/python.svg" },
+  { name: "C++", icon: "/icons/cplusplus.svg" },
+  { name: "C#", icon: "/icons/csharp.svg" },
+  { name: "Java", icon: "/icons/java.svg" },
+  { name: "JavaScript", icon: "/icons/javascript.svg" },
+  { name: "PHP", icon: "/icons/php.svg" },
 ];
 
 export const FRAMEWORKS = [
-  { name: "Django", icon: "devicon-django-plain" },
-  { name: "Laravel", icon: "devicon-laravel-original" },
-  { name: "Tailwind", icon: "devicon-tailwindcss-original" },
-  { name: "Node.js", icon: "devicon-nodejs-plain" },
-  { name: "Vue", icon: "devicon-vuejs-plain" },
-  { name: "React", icon: "devicon-react-original" },
+  { name: "Django", icon: "/icons/django.svg" },
+  { name: "Laravel", icon: "/icons/laravel.svg" },
+  { name: "Tailwind", icon: "/icons/tailwindcss.svg" },
+  { name: "Node.js", icon: "/icons/nodejs.svg" },
+  { name: "Vue", icon: "/icons/vuejs.svg" },
+  { name: "React", icon: "/icons/react.svg" },
 ];
 
 export const PROFICIENCY = [

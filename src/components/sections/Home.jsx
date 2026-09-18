@@ -51,7 +51,12 @@ export const Home = () => {
   const ready = useIntroReady();
   const openPalette = useOpenPalette();
   const [webgl, setWebgl] = useState(true);
-  const showMark = webgl && !reduced;
+  // Skip the 3D bundle on data-saver connections and very weak devices.
+  const [lite] = useState(() => {
+    const conn = navigator.connection;
+    return Boolean(conn?.saveData) || (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 2);
+  });
+  const showMark = webgl && !reduced && !lite;
   // Decided once at mount: wipe in right after the intro, or almost at once
   // when the intro was skipped. Must not re-run when `ready` flips later.
   const [fillClass] = useState(() => (reduced ? "" : ready ? "cx-fill-reveal-now" : "cx-fill-reveal"));
@@ -70,9 +75,9 @@ export const Home = () => {
 
         {/* Wordmark: an outlined ghost with the solid letters wiping in over it */}
         <Parallax speed={0.05} className="relative mt-7 inline-block">
-          <h1 aria-hidden="true" className="m-0 font-sans font-extrabold text-transparent" style={{ ...H1_STYLE, WebkitTextStroke: "1.5px rgba(125,211,252,0.5)" }}>
+          <span aria-hidden="true" className="block font-sans font-extrabold text-transparent" style={{ ...H1_STYLE, WebkitTextStroke: "1.5px rgba(125,211,252,0.5)" }}>
             {BRAND.name}
-          </h1>
+          </span>
           <h1
             className={`absolute inset-0 m-0 font-sans font-extrabold text-fg-bright ${fillClass}`}
             style={H1_STYLE}

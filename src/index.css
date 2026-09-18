@@ -226,6 +226,7 @@ body {
 .cx-intro-word { animation: cx-word 0.95s var(--ease-out-expo) 1.25s both, cx-text-glow 1.6s ease-in-out 2.2s infinite; }
 .cx-intro-name { animation: cx-in 0.7s ease-out 1.6s both; }
 .cx-page-in { animation: cx-in 1.1s var(--ease-out-expo) 2.15s both; }
+.cx-page-in-now { animation: cx-in 0.7s var(--ease-out-expo) both; }
 /* hero wordmark fills in from the left once the page is up */
 .cx-fill-reveal { animation: cx-fill-reveal 1.1s var(--ease-out-expo) 2.3s both; }
 .cx-fill-reveal-now { animation: cx-fill-reveal 1.1s var(--ease-out-expo) 0.2s both; }
@@ -348,11 +349,14 @@ body {
     @apply relative rounded-[14px] border border-slate-400/12 bg-panel/60 text-center;
     transition: transform 0.45s var(--ease-out-expo), border-color 0.35s ease, background-color 0.35s ease, box-shadow 0.45s ease;
   }
-  .cx-lift i {
-    font-size: 28px;
-    color: #cbd5e1;
+  /* self-hosted brand SVGs: muted at rest, full colour on hover */
+  .cx-lift img {
     display: inline-block;
-    transition: color 0.3s ease, transform 0.45s var(--ease-out-expo);
+    width: 28px;
+    height: 28px;
+    opacity: 0.72;
+    filter: grayscale(0.85) brightness(1.35);
+    transition: opacity 0.35s ease, filter 0.4s ease, transform 0.45s var(--ease-out-expo);
   }
   .cx-lift .cx-lift-label { color: #7d8798; transition: color 0.3s ease; }
   .cx-lift:hover {
@@ -361,7 +365,7 @@ body {
     background-color: rgba(19, 28, 48, 0.9);
     box-shadow: 0 20px 46px -26px rgba(37, 99, 235, 0.75);
   }
-  .cx-lift:hover i { color: #7dd3fc; transform: scale(1.12); }
+  .cx-lift:hover img { opacity: 1; filter: none; transform: scale(1.12); }
   .cx-lift:hover .cx-lift-label { color: #dbe3ef; }
 
   /* hover lift for cells sitting on a 1px grid (About capabilities) */

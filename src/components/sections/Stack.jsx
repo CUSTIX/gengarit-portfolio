@@ -15,7 +15,7 @@ const TileGrid = ({ label, items, delay = 0 }) => (
     <RevealOnScroll as="ul" delay={delay + 0.05} className="m-0 mt-5 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6">
       {items.map((item) => (
         <li key={item.name} className="cx-lift px-2 pb-4 pt-5">
-          <i className={item.icon} aria-hidden="true" />
+          <img src={item.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />
           <div className="cx-lift-label mt-3 font-mono text-[9.5px]">{item.name}</div>
         </li>
       ))}
