@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import emailjs from "emailjs-com";
-import { SOCIAL_LINKS } from "../../constants";
+import { CONTACT, RESUME_LINK, SOCIAL_LINKS } from "../../constants";
 import { Magnetic } from "../ui/Magnetic";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
+import { Scramble } from "../ui/Scramble";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { cx } from "../../utils/cx";
 
@@ -27,23 +28,29 @@ const readDraft = () => {
   }
 };
 
-const Corner = ({ className }) => (
-  <span
-    aria-hidden="true"
-    className={cx(
-      "pointer-events-none absolute h-[26px] w-[26px] border-accent-mid/55 transition-[width,height,border-color] duration-500 ease-out-expo group-hover/frame:h-9 group-hover/frame:w-9 group-hover/frame:border-accent-soft",
-      className
-    )}
-  />
-);
-
 const Field = ({ id, label, as: Tag = "input", className, ...rest }) => (
-  <div className="grid gap-[9px]">
-    <label htmlFor={id} className="cx-label text-[9.5px] text-dim">
+  <div className="cx-field-wrap grid gap-[11px]">
+    <label htmlFor={id} className="cx-field-label font-mono text-[9.5px] font-semibold tracking-[0.24em] text-accent-soft transition-colors duration-300">
       {label}
     </label>
-    <Tag id={id} className={cx("cx-input", className)} {...rest} />
+    <Tag id={id} className={cx("cx-field", className)} {...rest} />
   </div>
+);
+
+const LinkRow = ({ href, icon, children, ...rest }) => (
+  <Magnetic
+    href={href}
+    strength={4}
+    className="group/row flex items-center gap-[13px] border-b border-slate-400/10 py-[13px] text-[13.5px] text-slate-300 transition-colors duration-300 hover:text-white"
+    {...rest}
+  >
+    <i className={`${icon} w-5 text-[17px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/row:scale-110`} aria-hidden="true" />
+    {children}
+    <i
+      className="ri-arrow-right-up-line ml-auto text-sm text-ghost transition-[color,transform] duration-400 ease-out-expo group-hover/row:translate-x-0.5 group-hover/row:-translate-y-0.5 group-hover/row:text-accent-soft"
+      aria-hidden="true"
+    />
+  </Magnetic>
 );
 
 export const Contact = () => {
@@ -96,97 +103,59 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="cx-container max-w-[1060px] pb-[120px] pt-5">
-      <RevealOnScroll className="text-center">
-        <div className="cx-label text-[10px] tracking-[0.26em] text-accent-soft">INITIATE CONTACT</div>
-        <h2
-          id="contact-heading"
-          className="m-0 mt-5 font-sans font-bold tracking-[-0.035em] text-fg-bright text-balance"
-          style={{ fontSize: "clamp(32px, 4vw, 54px)" }}
-        >
-          Let&rsquo;s build something resilient.
+    <section id="contact" aria-labelledby="contact-heading" className="cx-container pb-[84px] pt-5 md:pb-[120px]">
+      <RevealOnScroll className="cx-section-head">
+        <h2 id="contact-heading" className="cx-h2">
+          {CONTACT.heading}
         </h2>
-        <p className="mx-auto mb-0 mt-5 max-w-[52ch] text-base leading-[1.72] text-muted text-pretty">
-          Secure line open for project inquiries, system audits, or collaboration requests.
-        </p>
+        <Scramble text={CONTACT.meta} className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
-      <RevealOnScroll delay={0.1} className="group/frame relative mt-[46px] p-[9px]">
-        <Corner className="left-0 top-0 rounded-tl-lg border-l border-t" />
-        <Corner className="right-0 top-0 rounded-tr-lg border-r border-t" />
-        <Corner className="bottom-0 left-0 rounded-bl-lg border-b border-l" />
-        <Corner className="bottom-0 right-0 rounded-br-lg border-b border-r" />
+      <RevealOnScroll delay={0.08} className="mt-12 grid items-start gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
+        <div>
+          <h3 className="m-0 text-[27px] font-bold leading-[1.24] tracking-[-0.028em] text-fg-bright text-balance">{CONTACT.title}</h3>
+          <p className="m-0 mt-5 text-[15.5px] leading-[1.74] text-muted text-pretty">{CONTACT.blurb}</p>
+          <div className="mt-[30px] flex items-center gap-[11px] text-[13.5px] text-accent-soft">
+            <span className="h-[7px] w-[7px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_10px_#38bdf8]" />
+            {CONTACT.replyNote}
+          </div>
+          <div className="mt-9 grid">
+            {SOCIAL_LINKS.map((link) => (
+              <LinkRow key={link.name} href={link.url} icon={link.icon} target="_blank" rel="noreferrer">
+                {link.name}
+              </LinkRow>
+            ))}
+            <LinkRow href={RESUME_LINK.url} icon={RESUME_LINK.icon} target="_blank" rel="noreferrer">
+              {RESUME_LINK.name}
+            </LinkRow>
+          </div>
+        </div>
 
         <div
-          className="relative overflow-hidden rounded-[22px] border border-slate-400/14 backdrop-blur-[16px]"
-          style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.13), rgba(11,15,24,0.78))" }}
+          className="relative overflow-hidden rounded-[22px] border border-slate-400/14 transition-[border-color,box-shadow] duration-500 focus-within:border-accent-mid/35 focus-within:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.7)]"
+          style={{ background: "linear-gradient(155deg, rgba(37,99,235,0.14), rgba(11,15,24,0.92))" }}
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-[2px]"
-            style={{ background: "linear-gradient(90deg, transparent, #2563eb 22%, #7dd3fc 50%, #2563eb 78%, transparent)" }}
+            className="pointer-events-none absolute -right-20 -top-[180px] h-[360px] w-[420px]"
+            style={{ background: "radial-gradient(circle, rgba(56,189,248,0.14), transparent 68%)" }}
           />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, rgba(148,163,184,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.05) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
-              maskImage: "radial-gradient(ellipse 90% 80% at 50% 0%, #000, transparent 76%)",
-              WebkitMaskImage: "radial-gradient(ellipse 90% 80% at 50% 0%, #000, transparent 76%)",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-[170px] left-1/2 h-[400px] w-[520px] -translate-x-1/2"
-            style={{ background: "radial-gradient(circle, rgba(56,189,248,0.16), transparent 66%)" }}
-          />
-
-          <div className="relative flex items-center justify-between gap-[18px] border-b border-slate-400/12 px-5 py-5 sm:px-[34px]">
-            <div className="flex items-center gap-[11px] font-mono text-[9.5px] tracking-[0.24em] text-accent-soft">
-              <span className="h-[6px] w-[6px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_9px_#38bdf8]" />
-              SECURE LINE ACTIVE
-            </div>
-            <span className="hidden font-mono text-[9.5px] tracking-[0.24em] text-ghost sm:inline">CX / TRANSMIT</span>
-          </div>
-
-          <form ref={formRef} onSubmit={handleSubmit} className="relative grid gap-[22px] px-5 pb-8 pt-7 sm:px-[34px] sm:pb-10 sm:pt-9">
-            <div className="grid gap-[22px] md:grid-cols-2">
-              <Field
-                id="cx-name"
-                label="IDENTIFIER"
-                type="text"
-                name="from_name"
-                required
-                autoComplete="name"
-                placeholder="Your name"
-                value={form.from_name}
-                onChange={onChange}
-              />
-              <Field
-                id="cx-email"
-                label="RETURN_ADDRESS"
-                type="email"
-                name="from_email"
-                required
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={form.from_email}
-                onChange={onChange}
-              />
+          <form ref={formRef} onSubmit={handleSubmit} className="relative grid gap-[30px] p-[26px_20px_28px] sm:p-[30px_24px_32px] lg:p-[42px_40px_40px]">
+            <div className="grid gap-[30px] md:grid-cols-2">
+              <Field id="cx-name" label="YOUR NAME" type="text" name="from_name" required autoComplete="name" placeholder="Jane Mercado" value={form.from_name} onChange={onChange} />
+              <Field id="cx-email" label="EMAIL" type="email" name="from_email" required autoComplete="email" placeholder="jane@company.com" value={form.from_email} onChange={onChange} />
             </div>
             <Field
               id="cx-message"
-              label="PAYLOAD"
+              label="MESSAGE"
               as="textarea"
               name="message"
               required
-              rows={5}
+              rows={4}
               placeholder="What are you building?"
               value={form.message}
               onChange={onChange}
-              className="resize-y leading-[1.65]"
+              className="min-h-[92px] resize-y leading-[1.7]"
             />
 
             <AnimatePresence>
@@ -200,10 +169,8 @@ export const Contact = () => {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.4, ease: EASE_OUT_EXPO }}
                   className={cx(
-                    "rounded-xl border px-[18px] py-[15px] font-mono text-[11px] leading-[1.6] tracking-[0.1em]",
-                    status.type === "success"
-                      ? "border-emerald-500/30 bg-emerald-500/8 text-emerald-300"
-                      : "border-red-500/30 bg-red-500/8 text-red-300"
+                    "rounded-xl border px-[18px] py-[15px] text-[13px] leading-[1.6]",
+                    status.type === "success" ? "border-emerald-500/30 bg-emerald-500/8 text-emerald-300" : "border-red-500/30 bg-red-500/8 text-red-300"
                   )}
                 >
                   {status.message}
@@ -215,7 +182,7 @@ export const Contact = () => {
               as="button"
               type="submit"
               disabled={loading}
-              className="cx-btn-primary w-full px-[30px] py-[18px] font-sans text-sm tracking-[0.04em] disabled:cursor-wait disabled:opacity-60"
+              className="cx-btn-primary justify-self-start px-8 py-[17px] font-sans text-sm tracking-[0.03em] disabled:cursor-wait disabled:opacity-60"
             >
               <span>{loading ? "Transmitting…" : "Send message"}</span>
               {loading ? (
@@ -230,27 +197,6 @@ export const Contact = () => {
             </Magnetic>
           </form>
         </div>
-      </RevealOnScroll>
-
-      <RevealOnScroll as="ul" delay={0.15} className="m-0 mt-[46px] flex list-none flex-wrap justify-center gap-8 p-0 sm:gap-10">
-        {SOCIAL_LINKS.map((link) => (
-          <li key={link.name}>
-            <Magnetic
-              href={link.url}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={link.name}
-              className="group/social inline-flex flex-col items-center gap-3"
-            >
-              <span className="flex h-[54px] w-[54px] items-center justify-center rounded-full border border-slate-400/18 bg-white/[0.03] text-[21px] text-slate-400 transition-[border-color,color,background-color,box-shadow,transform] duration-400 ease-out-expo group-hover/social:-translate-y-1 group-hover/social:border-accent-mid/60 group-hover/social:bg-accent-deep/15 group-hover/social:text-accent-soft group-hover/social:shadow-[0_16px_30px_-14px_rgba(56,189,248,0.7)]">
-                <i className={link.icon} aria-hidden="true" />
-              </span>
-              <span className="font-mono text-[9px] tracking-[0.26em] text-[#5b677a] transition-colors duration-400 group-hover/social:text-fg">
-                {link.name}
-              </span>
-            </Magnetic>
-          </li>
-        ))}
       </RevealOnScroll>
     </section>
   );

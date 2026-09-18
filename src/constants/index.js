@@ -9,27 +9,59 @@ export const BRAND = {
   year: 2026,
 };
 
-// Primary navigation. CONTACT is rendered separately as the pill CTA.
+// Top bar links, in order. CONTACT is rendered separately as the pill CTA.
 export const NAV_LINKS = [
-  { name: "Work", id: "work" },
   { name: "About", id: "about" },
   { name: "Stack", id: "stack" },
+  { name: "Work", id: "work" },
   { name: "Path", id: "path" },
 ];
 
-// Sections in scroll order (used for active-link tracking).
-export const SECTIONS = ["top", "work", "about", "stack", "path", "contact"];
+// Left rail (desktop scrollspy), in scroll order.
+export const RAIL_LINKS = [
+  { name: "Home", id: "top" },
+  ...NAV_LINKS,
+  { name: "Contact", id: "contact" },
+];
+
+// Sections in scroll order (drives scrollspy for the nav and rail).
+export const SECTIONS = RAIL_LINKS.map((l) => l.id);
 
 export const HERO_STATS = [
   { value: 4, suffix: "", label: "MAJOR SYSTEMS" },
-  { value: 2, suffix: "nd", label: "BEST THESIS" },
   { value: 12, suffix: "+", label: "TECHNOLOGIES" },
 ];
 
+// Case study shown in "Engineered works".
+export const FEATURED_PROJECT = {
+  title: "ProSupport Squad",
+  subtitle: "Virtual Assistant Marketplace Platform",
+  description:
+    "A U.S.-based marketplace connecting clients with pre-screened, highly educated virtual assistants. Covers the full lifecycle: browsing verified profiles, hiring, live work sessions, and billing.",
+  features: [
+    "Verified Profile & Hiring Flow",
+    "Live Agent Dashboard & Time Tracking",
+    "Secure Payments & Transparent Billing",
+  ],
+  impact:
+    "End-to-end platform connecting clients with virtual assistants, from verified hiring through active work sessions and billing.",
+  tags: ["Laravel", "Blade", "Stripe", "Twilio", "Wise", "DigitalOcean", "Cloudflare"],
+  logo: "/pictures/prosupport-logo.png",
+  gallery: [
+    { src: "/pictures/prosupport-hero.png", alt: "ProSupport Squad hero section" },
+    { src: "/pictures/prosupport-login.png", alt: "ProSupport Squad sign in screen" },
+    { src: "/pictures/prosupport-dashboard.png", alt: "ProSupport Squad agent dashboard" },
+    { src: "/pictures/prosupport-marketplace.png", alt: "ProSupport Squad marketplace features" },
+    { src: "/pictures/prosupport-howitworks.png", alt: "ProSupport Squad how it works steps" },
+    { src: "/pictures/prosupport-why.png", alt: "ProSupport Squad why us section" },
+  ],
+};
+
+// "Project archive": one row per system; the shared panel shows the open one.
+// `attention` rows carry a slow glow pulse to invite a click.
 export const PROJECTS = [
   {
     id: 1,
-    featured: true,
     title: "Bacolod City Flood Map & Alert System",
     subtitle: "Real-time Monitoring & Alert System",
     description:
@@ -56,6 +88,7 @@ export const PROJECTS = [
     id: 3,
     title: "DHSUD ELUPDD",
     subtitle: "Geospatial Dashboard & AI Analytics",
+    attention: true,
     description:
       "Engineered and deployed an interactive geospatial dashboard for the DHSUD Negros Island Region. Built to monitor regional LGU compliance through dynamic choropleth mapping and integrated AI-driven analytics.",
     image: "/pictures/ELUPDD_SS.webp",
@@ -68,6 +101,7 @@ export const PROJECTS = [
     title: "SENTINELS",
     subtitle: "2nd Best Thesis // RPG System",
     badge: "AWARDED",
+    attention: true,
     description:
       "A massive year-and-a-half development cycle. Awarded 2nd Best Thesis, this cybersecurity-focused educational platform features interactive gameplay, a complex multi-role system, and a secure backend dashboard.",
     image: "/pictures/SENTINELS_SS.webp",
@@ -81,7 +115,8 @@ export const PROJECTS = [
 export const ABOUT_DATA = {
   eyebrow: "ABOUT",
   title: "The full-stack engineer",
-  portraitCaption: "CX / SYSTEM ARCHITECT",
+  portraitStatus: "OPEN TO WORK",
+  portraitCaption: "CX / SOFTWARE ENGINEER",
   bio: "I am a Computer Science graduate and Full-Stack Developer, currently working as a Software Engineer at a US-based company. My approach blends the reliability of backend engineering with the precision of modern frontend interfaces.",
   philosophy:
     "Building systems that don't just work, but excel under pressure. I prioritize clean, secure data pipelines, and resilient architectures.",
@@ -97,23 +132,22 @@ export const ABOUT_DATA = {
   ],
 };
 
-// `brand` is the official logo color, revealed on hover in the Stack tiles.
 export const LANGUAGES = [
-  { name: "Python", icon: "devicon-python-plain", brand: "#4b8bbe" },
-  { name: "C++", icon: "devicon-cplusplus-plain", brand: "#659ad2" },
-  { name: "C#", icon: "devicon-csharp-plain", brand: "#9b4f96" },
-  { name: "Java", icon: "devicon-java-plain", brand: "#f89820" },
-  { name: "JavaScript", icon: "devicon-javascript-plain", brand: "#f7df1e" },
-  { name: "PHP", icon: "devicon-php-plain", brand: "#8892bf" },
+  { name: "Python", icon: "devicon-python-plain" },
+  { name: "C++", icon: "devicon-cplusplus-plain" },
+  { name: "C#", icon: "devicon-csharp-plain" },
+  { name: "Java", icon: "devicon-java-plain" },
+  { name: "JavaScript", icon: "devicon-javascript-plain" },
+  { name: "PHP", icon: "devicon-php-plain" },
 ];
 
 export const FRAMEWORKS = [
-  { name: "Django", icon: "devicon-django-plain", brand: "#44b78b" },
-  { name: "Laravel", icon: "devicon-laravel-original", brand: "#ff2d20" },
-  { name: "Tailwind", icon: "devicon-tailwindcss-original", brand: "#06b6d4" },
-  { name: "Node.js", icon: "devicon-nodejs-plain", brand: "#83cd29" },
-  { name: "Vue", icon: "devicon-vuejs-plain", brand: "#42b883" },
-  { name: "React", icon: "devicon-react-original", brand: "#61dafb" },
+  { name: "Django", icon: "devicon-django-plain" },
+  { name: "Laravel", icon: "devicon-laravel-original" },
+  { name: "Tailwind", icon: "devicon-tailwindcss-original" },
+  { name: "Node.js", icon: "devicon-nodejs-plain" },
+  { name: "Vue", icon: "devicon-vuejs-plain" },
+  { name: "React", icon: "devicon-react-original" },
 ];
 
 export const PROFICIENCY = [
@@ -150,19 +184,44 @@ export const TIMELINE = [
   },
 ];
 
+export const CONTACT = {
+  heading: "Get in touch",
+  meta: "OPEN FOR WORK",
+  title: "Let's build something resilient.",
+  blurb:
+    "Open for project inquiries, system audits, and collaboration requests. I read everything that comes through and reply personally.",
+  replyNote: "Usually replies within 24 hours",
+};
+
 export const SOCIAL_LINKS = [
-  { name: "GITHUB", url: "https://github.com/err-ebus", icon: "ri-github-fill" },
-  { name: "FACEBOOK", url: "https://www.facebook.com/john.bayer.965/", icon: "ri-facebook-circle-fill" },
-  { name: "INSTAGRAM", url: "https://www.instagram.com/p.rd_/", icon: "ri-instagram-line" },
-  { name: "RESUME", url: "/resume_bayer.pdf", icon: "ri-file-text-line" },
+  { name: "GitHub", url: "https://github.com/err-ebus", icon: "ri-github-fill", hint: "github.com/err-ebus" },
+  { name: "Facebook", url: "https://www.facebook.com/john.bayer.965/", icon: "ri-facebook-circle-fill", hint: "Message directly" },
+  { name: "Instagram", url: "https://www.instagram.com/p.rd_/", icon: "ri-instagram-line", hint: "@p.rd_" },
+];
+
+export const RESUME_LINK = { name: "Résumé (PDF)", url: "/resume_bayer.pdf", icon: "ri-file-text-line" };
+
+// Command palette (Cmd/Ctrl+K) entries.
+export const PALETTE_ITEMS = [
+  { label: "Home", hint: "Hero", href: "#top", icon: "ri-home-5-line" },
+  { label: "About", hint: "Who I am", href: "#about", icon: "ri-user-line" },
+  { label: "Stack", hint: "Languages & frameworks", href: "#stack", icon: "ri-code-s-slash-line" },
+  { label: "Engineered works", hint: "ProSupport Squad", href: "#work", icon: "ri-rocket-line" },
+  { label: "Deployments", hint: "Experience timeline", href: "#path", icon: "ri-time-line" },
+  { label: "Contact", hint: "Get in touch", href: "#contact", icon: "ri-mail-line" },
+  ...SOCIAL_LINKS.map((s) => ({ label: s.name, hint: s.hint, href: s.url, icon: s.icon, external: true })),
 ];
 
 // Keyword fallback for the assistant when no Gemini key is configured.
 export const FAQ_RESPONSES = [
   {
     keywords: ["hello", "hi", "hey", "greetings"],
+    response: "Hey — ask me anything about John's projects, stack, or experience.",
+  },
+  {
+    keywords: ["prosupport", "squad", "marketplace", "virtual assistant"],
     response:
-      "Hi, I'm the CUSTIX assistant. Ask me about John's skills, projects, education, or how to get in touch.",
+      "ProSupport Squad is a U.S.-based virtual-assistant marketplace John engineered on Laravel and Blade: verified profiles, hiring flow, a live agent dashboard with time tracking, and Stripe/Twilio/Wise integrations, deployed on DigitalOcean behind Cloudflare.",
   },
   {
     keywords: ["who", "about", "custix", "john", "yourself"],
@@ -172,12 +231,12 @@ export const FAQ_RESPONSES = [
   {
     keywords: ["skill", "technology", "tech", "stack", "programming", "language", "framework"],
     response:
-      "John builds with React, Vue, Node.js, and Tailwind on the front, and Python (Django), Laravel, PostgreSQL, Java, and C# on the back. Deepest strengths: React and Django (9/10), Node.js and Postgres (8/10).",
+      "John builds with React, Vue, Node.js, and Tailwind on the front, and Python (Django), Laravel/Blade, PostgreSQL, Java, and C# on the back. Deepest strengths: React and Django (9/10), Node.js and Postgres (8/10).",
   },
   {
     keywords: ["project", "work", "built", "portfolio", "flood", "dhsud", "sentinels"],
     response:
-      "Highlights: the Bacolod City Flood Map & Alert System (real-time geospatial alerts for 10,000+ residents), two DHSUD government systems (HOA CDD registry and the ELUPDD geospatial dashboard), and SENTINELS, an awarded 2nd Best Thesis. Scroll to Engineered works to expand each one.",
+      "Highlights: ProSupport Squad (the featured case study), the Bacolod City Flood Map & Alert System, two DHSUD government systems (HOA CDD registry and the ELUPDD geospatial dashboard), and SENTINELS, an awarded 2nd Best Thesis. Open the Project archive rows to see each one.",
   },
   {
     keywords: ["education", "school", "degree", "university", "thesis", "award"],
@@ -187,6 +246,6 @@ export const FAQ_RESPONSES = [
   {
     keywords: ["contact", "email", "hire", "reach", "message", "available"],
     response:
-      "Use the contact form at the bottom of the page and John will reply directly. You can also reach him on GitHub, Facebook, or Instagram via the links there.",
+      "Use the contact form at the bottom of the page and John will reply personally, usually within 24 hours. You can also reach him on GitHub, Facebook, or Instagram.",
   },
 ];

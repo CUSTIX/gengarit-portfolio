@@ -1,7 +1,7 @@
-import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ABOUT_DATA, TIMELINE } from "../../constants";
+import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
+import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
 
 const DOT = {
@@ -50,18 +50,13 @@ const Step = ({ item, index, last }) => (
 );
 
 export const Path = () => {
-  const cardRef = useRef(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: cardRef, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [-18, 18]);
-
   return (
     <section id="path" aria-labelledby="path-heading" className="cx-container pb-[110px] pt-5">
       <RevealOnScroll className="cx-section-head">
-        <h2 id="path-heading" className="cx-h2">
+        <Parallax as="h2" speed={0.045} id="path-heading" className="cx-h2">
           Deployments
-        </h2>
-        <span className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]">2022 — 2026</span>
+        </Parallax>
+        <Scramble text="2022 — 2026" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
       <div className="mt-[46px] grid items-start gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
@@ -74,9 +69,8 @@ export const Path = () => {
         </ol>
 
         <RevealOnScroll delay={0.15}>
-          <motion.div
-            ref={cardRef}
-            style={{ y }}
+          <Parallax
+            speed={-0.055}
             className="group/status relative overflow-hidden rounded-[20px] border border-accent/16 p-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent/40 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.8)]"
           >
             <div
@@ -94,7 +88,7 @@ export const Path = () => {
               </div>
               <p className="m-0 mt-5 text-[15px] leading-[1.74] text-slate-300 text-pretty">{ABOUT_DATA.status}</p>
             </div>
-          </motion.div>
+          </Parallax>
         </RevealOnScroll>
       </div>
     </section>

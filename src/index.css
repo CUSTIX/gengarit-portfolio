@@ -34,7 +34,12 @@
   --animate-cx-pulse: cx-pulse 2.4s ease-in-out infinite;
   --animate-cx-scroll-dot: cx-scroll-dot 2.2s ease-in-out infinite;
   --animate-cx-drift: cx-drift 7s ease-in-out infinite;
-  --animate-cx-spin-slow: cx-spin 14s linear infinite;
+  --animate-cx-ring-spin: cx-ring-spin 6s linear infinite;
+  --animate-cx-glow-halo: cx-glow-halo 4.2s ease-in-out infinite;
+  --animate-cx-glow-pulse: cx-glow-pulse 3.6s ease-in-out infinite;
+  --animate-cx-fab-attract: cx-fab-attract 3.4s ease-in-out infinite;
+  --animate-cx-text-glow: cx-text-glow 1.6s ease-in-out infinite;
+  --animate-cx-panel-in: cx-panel-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes cx-pulse {
     0%, 100% { opacity: 0.35; }
@@ -49,8 +54,29 @@
     0%, 100% { transform: translate3d(0, 0, 0); }
     50% { transform: translate3d(0, -22px, 0); }
   }
-  @keyframes cx-spin {
+  @keyframes cx-ring-spin {
     to { transform: rotate(360deg); }
+  }
+  @keyframes cx-glow-halo {
+    0%, 100% { opacity: 0.32; }
+    50% { opacity: 0.62; }
+  }
+  @keyframes cx-glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.12), 0 18px 50px -28px rgba(37, 99, 235, 0.3); }
+    50% { box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4), 0 24px 64px -26px rgba(37, 99, 235, 0.5); }
+  }
+  @keyframes cx-fab-attract {
+    0%, 78%, 100% { transform: scale(1); }
+    84% { transform: scale(1.07); }
+    90% { transform: scale(0.98); }
+  }
+  @keyframes cx-text-glow {
+    0%, 100% { text-shadow: 0 0 24px rgba(56, 189, 248, 0.35); }
+    50% { text-shadow: 0 0 40px rgba(56, 189, 248, 0.75); }
+  }
+  @keyframes cx-panel-in {
+    0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+    100% { opacity: 1; transform: none; }
   }
 }
 
@@ -59,7 +85,9 @@ html {
   /* non-static so Framer's useScroll can measure element offsets */
   position: relative;
   background: var(--color-ink);
-  scroll-behavior: smooth;
+  /* in-page navigation is a JS tween (see utils/scroll.js); native smooth
+     scrolling would fight it */
+  scroll-behavior: auto;
   /* `clip` (not `hidden`) so the viewport stays the scroll container and
      position: sticky keeps working for the navbar. */
   overflow-x: clip;
@@ -82,14 +110,20 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: rgba(96, 165, 250, 0.45); }
 * { scrollbar-width: thin; scrollbar-color: rgba(96, 165, 250, 0.25) var(--color-ink); }
 
-/* Sticky nav is 76px tall; keep anchored headings clear of it. */
-section[id] { scroll-margin-top: 76px; }
+/* Keyboard focus ring in the accent color. In the base layer so a utility
+   like outline-none can still opt an element out. */
+@layer base {
+  :focus-visible:not(.cx-input):not(.cx-field) {
+    outline: 2px solid rgba(96, 165, 250, 0.75);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
 
-/* Keyboard focus ring in the accent color, only for keyboard users. */
-:focus-visible:not(.cx-input) {
-  outline: 2px solid rgba(96, 165, 250, 0.75);
-  outline-offset: 3px;
-  border-radius: 6px;
+/* Browser autofill would paint inputs white; keep them on-brand. */
+.cx-field:-webkit-autofill {
+  -webkit-text-fill-color: #f2f5fa;
+  -webkit-box-shadow: 0 0 0 60px #0b0f18 inset;
 }
 
 /* === INTRO SEQUENCE (CUSTIX mark assembly) === */
@@ -123,20 +157,84 @@ section[id] { scroll-margin-top: 76px; }
   0% { opacity: 0; transform: translate3d(0, 22px, 0); }
   100% { opacity: 1; transform: none; }
 }
+@keyframes cx-grid-in {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes cx-scan-sweep {
+  0% { opacity: 0; transform: translateY(-40%); }
+  15% { opacity: 0.5; }
+  70% { opacity: 0.15; }
+  100% { opacity: 0; transform: translateY(40%); }
+}
+@keyframes cx-spark {
+  0% { opacity: 0; transform: scale(0.4); }
+  40% { opacity: 1; transform: scale(1.6); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+@keyframes cx-shockwave {
+  0% { opacity: 0.9; transform: scale(0.3); }
+  100% { opacity: 0; transform: scale(6.5); }
+}
+@keyframes cx-bracket {
+  0% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(2.4); }
+  35% { opacity: 1; }
+  65% { opacity: 1; transform: translate(var(--bx), var(--by)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(0.85); }
+}
+@keyframes cx-glitch-c {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  55% { opacity: 0; }
+  62% { opacity: 0.7; transform: translate3d(-4px, 1px, 0); }
+  68% { opacity: 0; transform: translate3d(3px, -1px, 0); }
+  74% { opacity: 0.5; transform: translate3d(-2px, 0, 0); }
+  82% { opacity: 0; }
+  100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes cx-glitch-m {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  55% { opacity: 0; }
+  62% { opacity: 0.7; transform: translate3d(4px, -1px, 0); }
+  68% { opacity: 0; transform: translate3d(-3px, 1px, 0); }
+  74% { opacity: 0.5; transform: translate3d(2px, 0, 0); }
+  82% { opacity: 0; }
+  100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes cx-fill-reveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+@keyframes cx-typing-dot {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
 
 .cx-intro { animation: cx-out 0.66s cubic-bezier(0.65, 0, 0.35, 1) 2s forwards; }
+.cx-intro-grid { animation: cx-grid-in 1s ease-out 0.1s both; }
+.cx-intro-ring-a { animation: cx-ring-spin 14s linear infinite, cx-in 1s var(--ease-out-expo) 0.3s both; }
+.cx-intro-ring-b { animation: cx-ring-spin 20s linear infinite reverse, cx-in 1s var(--ease-out-expo) 0.45s both; }
 .cx-intro-flash { animation: cx-flash 0.9s ease-out 0.95s; }
+.cx-intro-shock { animation: cx-shockwave 0.9s var(--ease-out-expo) 1.02s both; }
+.cx-intro-scan { animation: cx-scan-sweep 1.15s var(--ease-out-expo) 0.05s both; }
+.cx-intro-bracket { animation: cx-bracket 0.85s var(--ease-out-expo) 0.05s both; }
+.cx-intro-glitch-c { animation: cx-glitch-c 1.1s steps(1) 0.02s both; }
+.cx-intro-glitch-m { animation: cx-glitch-m 1.1s steps(1) 0.02s both; }
 .cx-intro-c { animation: cx-c 1.15s var(--ease-out-expo) both; }
 .cx-intro-x { animation: cx-x 1.15s var(--ease-out-expo) both; }
+.cx-intro-spark { animation: cx-spark 0.55s ease-out 1.05s both; }
 .cx-intro-line { transform-origin: center; animation: cx-line 0.7s var(--ease-out-expo) 1.15s both; }
-.cx-intro-word { animation: cx-word 0.95s var(--ease-out-expo) 1.25s both; }
+.cx-intro-word { animation: cx-word 0.95s var(--ease-out-expo) 1.25s both, cx-text-glow 1.6s ease-in-out 2.2s infinite; }
 .cx-intro-name { animation: cx-in 0.7s ease-out 1.6s both; }
 .cx-page-in { animation: cx-in 1.1s var(--ease-out-expo) 2.15s both; }
+/* hero wordmark fills in from the left once the page is up */
+.cx-fill-reveal { animation: cx-fill-reveal 1.1s var(--ease-out-expo) 2.3s both; }
+.cx-fill-reveal-now { animation: cx-fill-reveal 1.1s var(--ease-out-expo) 0.2s both; }
+.cx-typing-dot { animation: cx-typing-dot 1.2s ease-in-out infinite; }
 
 /* === COMPONENT PRIMITIVES === */
 @layer components {
   .cx-container {
-    @apply mx-auto w-full max-w-[1280px] px-[22px] md:px-10;
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-[26px] md:px-10;
   }
 
   /* mono eyebrow label, e.g. "ABOUT", "LANGUAGES" */
@@ -206,7 +304,16 @@ section[id] { scroll-margin-top: 76px; }
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
   }
 
-  /* form controls */
+  /* tertiary: the ⌘K trigger */
+  .cx-btn-kbd {
+    @apply inline-flex cursor-pointer items-center gap-[10px] rounded-full border border-slate-400/16 bg-transparent px-5 py-4 font-mono text-[11px] tracking-[0.08em] text-dim;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  }
+  .cx-btn-kbd:hover {
+    @apply border-accent-mid/40 bg-accent-deep/8 text-slate-300;
+  }
+
+  /* boxed form control (assistant input) */
   .cx-input {
     @apply w-full rounded-xl border border-slate-400/16 bg-ink/60 px-[18px] py-4 font-sans text-sm text-fg outline-none;
     transition: border-color 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
@@ -219,6 +326,16 @@ section[id] { scroll-margin-top: 76px; }
     background-color: rgba(5, 7, 12, 0.8);
   }
 
+  /* underline-only form control (contact form) */
+  .cx-field {
+    @apply w-full border-0 border-b border-slate-400/22 bg-transparent px-[2px] pb-[13px] pt-0 font-sans text-[15.5px] text-fg-bright outline-none;
+    transition: border-color 0.35s ease;
+  }
+  .cx-field::placeholder { color: #64748b; }
+  .cx-field:hover { border-bottom-color: rgba(148, 163, 184, 0.4); }
+  .cx-field:focus { border-bottom-color: #38bdf8; }
+  .cx-field-wrap:focus-within .cx-field-label { color: #bae6fd; }
+
   /* feature bullet rows */
   .cx-feature {
     @apply flex items-center gap-3 text-[13.5px] text-slate-300;
@@ -226,37 +343,47 @@ section[id] { scroll-margin-top: 76px; }
   .cx-feature i { color: var(--color-accent); transition: transform 0.4s var(--ease-out-expo); }
   .cx-feature:hover i { transform: scale(1.2) rotate(90deg); }
 
-  /* Devicon tile in the Stack section */
-  .cx-tile {
-    @apply relative overflow-hidden rounded-[14px] border border-slate-400/12 bg-panel/60 px-2 pb-4 pt-5 text-center;
-    transition: transform 0.5s var(--ease-out-expo), border-color 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease;
+  /* hover lift for bordered tiles (Stack) */
+  .cx-lift {
+    @apply relative rounded-[14px] border border-slate-400/12 bg-panel/60 text-center;
+    transition: transform 0.45s var(--ease-out-expo), border-color 0.35s ease, background-color 0.35s ease, box-shadow 0.45s ease;
   }
-  .cx-tile::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(120px circle at 50% 0%, color-mix(in srgb, var(--brand, #38bdf8) 22%, transparent), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-  }
-  .cx-tile i {
+  .cx-lift i {
     font-size: 28px;
     color: #cbd5e1;
     display: inline-block;
-    transition: color 0.4s ease, transform 0.5s var(--ease-out-expo), filter 0.5s ease;
+    transition: color 0.3s ease, transform 0.45s var(--ease-out-expo);
   }
-  .cx-tile:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--brand, #38bdf8) 45%, transparent);
-    box-shadow: 0 22px 44px -26px color-mix(in srgb, var(--brand, #38bdf8) 60%, transparent);
+  .cx-lift .cx-lift-label { color: #7d8798; transition: color 0.3s ease; }
+  .cx-lift:hover {
+    transform: translate3d(0, -5px, 0);
+    border-color: rgba(96, 165, 250, 0.5);
+    background-color: rgba(19, 28, 48, 0.9);
+    box-shadow: 0 20px 46px -26px rgba(37, 99, 235, 0.75);
   }
-  .cx-tile:hover::before { opacity: 1; }
-  .cx-tile:hover i {
-    color: var(--brand, #38bdf8);
-    transform: scale(1.12) translateY(-2px);
-    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--brand, #38bdf8) 55%, transparent));
+  .cx-lift:hover i { color: #7dd3fc; transform: scale(1.12); }
+  .cx-lift:hover .cx-lift-label { color: #dbe3ef; }
+
+  /* hover lift for cells sitting on a 1px grid (About capabilities) */
+  .cx-lift-cell {
+    @apply relative bg-panel/70 px-6 py-[22px];
+    transition: background-color 0.35s ease, box-shadow 0.45s ease;
   }
+  .cx-lift-cell .cx-lift-inner { transition: transform 0.45s var(--ease-out-expo); }
+  .cx-lift-cell i {
+    color: #60a5fa;
+    display: inline-block;
+    transition: color 0.3s ease, transform 0.45s var(--ease-out-expo);
+  }
+  .cx-lift-cell .cx-lift-label { color: #64748b; transition: color 0.3s ease; }
+  .cx-lift-cell:hover {
+    background-color: rgba(21, 32, 56, 0.92);
+    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.25), 0 20px 46px -26px rgba(37, 99, 235, 0.75);
+    z-index: 1;
+  }
+  .cx-lift-cell:hover .cx-lift-inner { transform: translate3d(0, -4px, 0); }
+  .cx-lift-cell:hover i { color: #7dd3fc; transform: scale(1.12); }
+  .cx-lift-cell:hover .cx-lift-label { color: #dbe3ef; }
 }
 
 /* === REDUCED MOTION === */

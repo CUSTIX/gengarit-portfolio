@@ -86,7 +86,7 @@ export const Navbar = ({ activeSection }) => {
                 "rounded-full border px-5 py-[11px] transition-[border-color,background-color,box-shadow,color] duration-400",
                 activeSection === "contact"
                   ? "border-accent-mid/70 bg-accent-deep/25 text-white shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
-                  : "border-accent-mid/35 bg-accent-deep/12 text-fg hover:border-accent-mid/70 hover:bg-accent-deep/25 hover:text-white hover:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
+                  : "border-accent-mid/35 bg-accent-deep/12 text-fg hover:border-accent-mid/60 hover:bg-accent-deep/24 hover:text-white hover:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
               )}
             >
               CONTACT

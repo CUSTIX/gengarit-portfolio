@@ -2,25 +2,30 @@ import { useCallback, useEffect, useState } from "react";
 import { MotionConfig, useReducedMotion } from "framer-motion";
 import { ChatbotButton } from "./components/features/ChatbotButton";
 import { ChatbotModal } from "./components/features/ChatbotModal";
+import { CommandPalette } from "./components/features/CommandPalette";
 import { ParticleEffect } from "./components/features/ParticleEffect";
 import { LoadingScreen } from "./components/layout/LoadingScreen";
 import { Navbar } from "./components/layout/Navbar";
+import { SideRail } from "./components/layout/SideRail";
 import { Footer } from "./components/layout/Footer";
 import { FollowCursor } from "./components/ui/FollowCursor";
 import { LogoDefs } from "./components/ui/Logo";
+import { Parallax } from "./components/ui/Parallax";
 import { Home } from "./components/sections/Home";
-import { Projects } from "./components/sections/Projects";
 import { About } from "./components/sections/About";
 import { Stack } from "./components/sections/Stack";
+import { Projects } from "./components/sections/Projects";
 import { Path } from "./components/sections/Path";
 import { Contact } from "./components/sections/Contact";
 import { IntroContext } from "./context/intro";
+import { PaletteContext } from "./context/palette";
 import { useActiveSection } from "./hooks/useActiveSection";
+import { useAnchorNav } from "./hooks/useAnchorNav";
 import { useChatbot } from "./hooks/useChatbot";
 import { SECTIONS } from "./constants";
 import { cx } from "./utils/cx";
 
-/** Fixed ambient layers behind everything: color washes and a faded grid. */
+/** Fixed ambient layers behind everything: color washes and two drifting blobs. */
 const Backdrop = () => (
   <>
     <div
@@ -31,16 +36,19 @@ const Backdrop = () => (
           "radial-gradient(900px circle at 18% 12%, rgba(37,99,235,0.16), transparent 62%), radial-gradient(760px circle at 88% 72%, rgba(56,189,248,0.10), transparent 60%), radial-gradient(600px circle at 50% 108%, rgba(29,78,216,0.12), transparent 60%)",
       }}
     />
-    <div
+    <Parallax
+      fixed
+      speed={-0.09}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(to right, rgba(148,163,184,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.045) 1px, transparent 1px)",
-        backgroundSize: "96px 96px",
-        maskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 78%)",
-        WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 78%)",
-      }}
+      className="pointer-events-none fixed left-[6%] top-[14%] z-0 hidden h-[340px] w-[340px] rounded-full blur-[2px] md:block"
+      style={{ background: "radial-gradient(circle, rgba(37,99,235,0.14), transparent 70%)" }}
+    />
+    <Parallax
+      fixed
+      speed={0.12}
+      aria-hidden="true"
+      className="pointer-events-none fixed right-[4%] top-[55%] z-0 hidden h-[280px] w-[280px] rounded-full md:block"
+      style={{ background: "radial-gradient(circle, rgba(56,189,248,0.12), transparent 70%)" }}
     />
   </>
 );
@@ -52,62 +60,60 @@ function App() {
   const finishIntro = useCallback(() => setIntroDone(true), []);
 
   const activeSection = useActiveSection(SECTIONS);
+  useAnchorNav();
+
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const closePalette = useCallback(() => setPaletteOpen(false), []);
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const [chatOpen, setChatOpen] = useState(false);
-  const [chatNudge, setChatNudge] = useState(false);
+  const closeChat = useCallback(() => setChatOpen(false), []);
   const { messages, loading, sendMessage } = useChatbot();
-
-  // Nudge toward the assistant once, a few seconds after the intro.
-  useEffect(() => {
-    if (!introDone || chatOpen) return;
-    const show = setTimeout(() => setChatNudge(true), 6000);
-    const hide = setTimeout(() => setChatNudge(false), 14000);
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
-  }, [introDone, chatOpen]);
-
-  const toggleChat = () => {
-    setChatNudge(false);
-    setChatOpen((v) => !v);
-  };
 
   return (
     <MotionConfig reducedMotion="user">
       <IntroContext.Provider value={introDone}>
-        <div className="relative min-h-screen bg-ink text-fg">
-          <LogoDefs />
-          <ParticleEffect />
-          <Backdrop />
-          <FollowCursor />
+        <PaletteContext.Provider value={openPalette}>
+          <div className="relative min-h-screen bg-ink text-fg">
+            <LogoDefs />
+            <ParticleEffect />
+            <Backdrop />
+            <FollowCursor />
 
-          {!introDone && <LoadingScreen onComplete={finishIntro} />}
+            {!introDone && <LoadingScreen onComplete={finishIntro} />}
 
-          <div className={cx("relative z-10", !reduced && "cx-page-in")}>
-            <Navbar activeSection={activeSection} />
-            <main>
-              <Home />
-              <Projects />
-              <About />
-              <Stack />
-              <Path />
-              <Contact />
-            </main>
-            <Footer />
+            <div className={cx("relative z-10", !reduced && "cx-page-in")}>
+              <Navbar activeSection={activeSection} />
+              <main>
+                <Home />
+                <About />
+                <Stack />
+                <Projects />
+                <Path />
+                <Contact />
+              </main>
+              <Footer />
+            </div>
+
+            <SideRail activeSection={activeSection} />
+            <CommandPalette open={paletteOpen} onClose={closePalette} />
+
+            <div className="fixed bottom-5 right-5 z-[95] flex flex-col items-end gap-[14px] sm:bottom-7 sm:right-7">
+              <ChatbotModal open={chatOpen} onClose={closeChat} onSend={sendMessage} messages={messages} loading={loading} />
+              <ChatbotButton onClick={() => setChatOpen((v) => !v)} open={chatOpen} />
+            </div>
           </div>
-
-          <div className="fixed bottom-6 right-4 z-[85] sm:right-6">
-            <ChatbotButton onClick={toggleChat} open={chatOpen} nudge={chatNudge} />
-          </div>
-          <ChatbotModal
-            open={chatOpen}
-            onClose={() => setChatOpen(false)}
-            onSend={sendMessage}
-            messages={messages}
-            loading={loading}
-          />
-        </div>
+        </PaletteContext.Provider>
       </IntroContext.Provider>
     </MotionConfig>
   );

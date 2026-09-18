@@ -4,12 +4,17 @@ import {
   ABOUT_DATA,
   BRAND,
   FAQ_RESPONSES,
+  FEATURED_PROJECT,
   FRAMEWORKS,
   LANGUAGES,
   PROFICIENCY,
   PROJECTS,
   TIMELINE,
 } from "../constants";
+
+// Questions per page load before the assistant points to the contact form.
+const MAX_QUESTIONS = 12;
+const LIMIT_REPLY = "That's plenty for this session — use the contact form below for anything else.";
 
 const DEFAULT_RESPONSE =
   "I can help with questions about John's skills, projects, education, and how to get in touch. Try asking about one of those.";
@@ -24,14 +29,15 @@ const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const SYSTEM_PROMPT = `
 You are the ${BRAND.name} assistant on the portfolio site of ${BRAND.fullName} (brand: ${BRAND.name}), a ${BRAND.role} from ${BRAND.location}.
-Answer questions from visitors and recruiters about John using ONLY the data below. Be concise, warm, and professional; plain sentences, no headings, at most one emoji per reply and only when it fits.
-If something is not covered, say you don't have that detail and suggest using the contact form at the bottom of the page.
+Answer questions from visitors and recruiters about John using ONLY the data below. Keep answers short (2-4 sentences), friendly, and specific; plain sentences, no headings, no emoji.
+If asked something unrelated to John or his work, or not covered below, say so and redirect politely to the contact form at the bottom of the page.
 
 ABOUT: ${JSON.stringify(ABOUT_DATA)}
 LANGUAGES: ${JSON.stringify(LANGUAGES.map((l) => l.name))}
 FRAMEWORKS: ${JSON.stringify(FRAMEWORKS.map((f) => f.name))}
 PROFICIENCY (1-10): ${JSON.stringify(PROFICIENCY)}
-PROJECTS: ${JSON.stringify(PROJECTS.map((p) => ({ ...p, image: undefined })))}
+FEATURED_CASE_STUDY: ${JSON.stringify({ ...FEATURED_PROJECT, gallery: undefined, logo: undefined })}
+PROJECT_ARCHIVE: ${JSON.stringify(PROJECTS.map((p) => ({ ...p, image: undefined })))}
 EXPERIENCE_AND_EDUCATION: ${JSON.stringify(TIMELINE)}
 LINKS: GitHub ${BRAND.github}
 `;
@@ -47,7 +53,12 @@ export const useChatbot = () => {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async (text) => {
+    const asked = messages.filter((m) => m.role === "user").length;
     setMessages((prev) => [...prev, { role: "user", content: text }]);
+    if (asked >= MAX_QUESTIONS) {
+      setMessages((prev) => [...prev, { role: "bot", content: LIMIT_REPLY }]);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -70,7 +81,7 @@ export const useChatbot = () => {
       console.error("Assistant error:", error);
       setMessages((prev) => [
         ...prev,
-        { role: "bot", content: "I hit a connection problem. Please try again in a moment, or use the contact form below." },
+        { role: "bot", content: "Couldn't reach the assistant right now — use the contact form below and John will get back to you directly." },
       ]);
     } finally {
       setLoading(false);

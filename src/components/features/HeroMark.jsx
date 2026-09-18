@@ -1,17 +1,19 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-// Widest extent of the mark plus its orbit ring, with padding. Used to
-// scale the scene so it always fits the canvas regardless of aspect.
-const SPAN = 3.9;
+// Widest extent of the wordmark with padding; the scene is scaled so it
+// always fits the canvas regardless of aspect.
+const SPAN = 3.6;
 
 /**
- * Bevelled 3D "X" with a glowing edge outline and a thin orbit ring,
- * slowly rotating and leaning toward the cursor. Renders only while the
- * canvas is on screen and the tab is visible.
+ * Extruded 3D "CX" wordmark: a chrome "C" and a cyan "X" made of two
+ * crossing bars, lit by a hemisphere + key light. It sways within a
+ * bounded angle (never turns its back) and leans toward the cursor,
+ * strongly while hovered and gently otherwise. Renders only while on
+ * screen and the tab is visible.
  *
- * Loaded lazily from Home; falls back to the static mark if WebGL is
- * unavailable (caller handles the fallback via onFail).
+ * Loaded lazily from Home; calls onFail if a WebGL context can't be
+ * created so the caller can show the static mark instead.
  */
 export default function HeroMark({ onFail }) {
   const ref = useRef(null);
@@ -22,7 +24,14 @@ export default function HeroMark({ onFail }) {
 
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({
+        canvas: cv,
+        antialias: true,
+        alpha: true,
+        preserveDrawingBuffer: true,
+        failIfMajorPerformanceCaveat: false,
+      });
+      if (!renderer.getContext()) throw new Error("no context");
     } catch {
       onFail?.();
       return;
@@ -34,61 +43,57 @@ export default function HeroMark({ onFail }) {
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
     camera.position.set(0, 0, 6.4);
 
-    // Plus-shaped outline, rotated 45deg below to read as an X.
-    const w = 0.27;
-    const L = 1.05;
-    const pts = [[-w, -L], [w, -L], [w, -w], [L, -w], [L, w], [w, w], [w, L], [-w, L], [-w, w], [-L, w], [-L, -w], [-w, -w]];
-    const shape = new THREE.Shape();
-    shape.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
-    shape.closePath();
+const metal = new THREE.MeshPhongMaterial({ color: 0xdce4f0, emissive: 0x0a1830, emissiveIntensity: 0.18, shininess: 120, specular: 0x8fb4ff });
+    const accent = new THREE.MeshPhongMaterial({ color: 0x5ccbfa, emissive: 0x0e5a82, emissiveIntensity: 0.5, shininess: 90, specular: 0xd6f0ff });
+    const bevel = { depth: 0.6, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 8, curveSegments: 64 };
+    // Resting pose: a 3/4 view so the extruded sides catch light and read as 3D.
+    const BASE_X = -0.22;
+    const BASE_Y = 0.34;
 
-    const geo = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.42,
-      bevelEnabled: true,
-      bevelSize: 0.035,
-      bevelThickness: 0.035,
-      bevelSegments: 4,
-      curveSegments: 4,
-    });
-    geo.center();
+    // "C": an open ring (outer arc, then inner arc back)
+    const cShape = new THREE.Shape();
+    cShape.absarc(0, 0, 0.85, Math.PI * 0.27, Math.PI * 1.73, false);
+    cShape.absarc(0, 0, 0.5, Math.PI * 1.73, Math.PI * 0.27, true);
+    const cGeo = new THREE.ExtrudeGeometry(cShape, bevel);
+    cGeo.translate(-0.95, 0, 0);
+    cGeo.deleteAttribute("normal");
+    cGeo.computeVertexNormals();
+    const cMesh = new THREE.Mesh(cGeo, metal);
 
-    const mat = new THREE.MeshPhysicalMaterial({
-      color: 0x11245e,
-      metalness: 0.55,
-      roughness: 0.22,
-      clearcoat: 1,
-      clearcoatRoughness: 0.12,
-      emissive: 0x0b2a6b,
-      emissiveIntensity: 0.55,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
+    // "X": two crossing bars
+    const barShape = (bw, bl) => {
+      const s = new THREE.Shape();
+      s.moveTo(-bw / 2, -bl / 2);
+      s.lineTo(bw / 2, -bl / 2);
+      s.lineTo(bw / 2, bl / 2);
+      s.lineTo(-bw / 2, bl / 2);
+      s.closePath();
+      return s;
+    };
+    const bar1 = new THREE.ExtrudeGeometry(barShape(0.32, 1.9), bevel);
+    bar1.rotateZ(Math.PI / 4);
+    const bar2 = new THREE.ExtrudeGeometry(barShape(0.32, 1.9), bevel);
+    bar2.rotateZ(-Math.PI / 4);
+    const x1 = new THREE.Mesh(bar1, accent);
+    const x2 = new THREE.Mesh(bar2, accent);
+    x1.position.x = 0.85;
+    x2.position.x = 0.85;
 
-    const edgesGeo = new THREE.EdgesGeometry(geo, 25);
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.55 });
-    const edges = new THREE.LineSegments(edgesGeo, edgesMat);
-
-    const group = new THREE.Group();
-    group.rotation.z = Math.PI / 4;
-    group.add(mesh, edges);
-
-    const ringGeo = new THREE.TorusGeometry(1.85, 0.007, 8, 128);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2563eb, transparent: true, opacity: 0.5 });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI / 2.2;
-
+    const wordmark = new THREE.Group();
+    wordmark.add(cMesh, x1, x2);
+    wordmark.rotation.x = BASE_X;
+    wordmark.rotation.y = BASE_Y;
     const root = new THREE.Group();
-    root.add(group, ring);
+    root.add(wordmark);
     scene.add(root);
 
-    scene.add(new THREE.AmbientLight(0x9ec5ff, 0.5));
-    const key = new THREE.DirectionalLight(0xffffff, 2.1);
+scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
+    const key = new THREE.DirectionalLight(0xffffff, 1.4);
     key.position.set(3, 4, 5);
-    const rim = new THREE.PointLight(0x38bdf8, 26, 14);
-    rim.position.set(-3.4, -1.4, 2.6);
-    const back = new THREE.PointLight(0x1d4ed8, 18, 16);
-    back.position.set(1.6, 2.4, -4);
-    scene.add(key, rim, back);
+    // soft cyan rim from the lower left so the extruded sides stay legible
+    const rim = new THREE.PointLight(0x38bdf8, 18, 14);
+    rim.position.set(-3.4, -1.2, 2.8);
+    scene.add(key, rim);
 
     const resize = () => {
       const rect = cv.getBoundingClientRect();
@@ -100,32 +105,38 @@ export default function HeroMark({ onFail }) {
       const half = Math.tan((camera.fov * Math.PI) / 360);
       const visH = 2 * half * camera.position.z;
       const visW = visH * aspect;
-      root.scale.setScalar(Math.min(1, Math.min(visW, visH) / SPAN));
+      // fill the canvas (up to 1.15x natural size on wide columns)
+      root.scale.setScalar(Math.min(1.15, Math.min(visW, visH) / SPAN));
+      renderer.render(scene, camera);
     };
 
     const target = { x: 0, y: 0 };
     const cur = { x: 0, y: 0 };
     const onMove = (e) => {
-      target.x = (e.clientX / window.innerWidth - 0.5) * 0.7;
-      target.y = (e.clientY / window.innerHeight - 0.5) * 0.5;
+      const rect = cv.getBoundingClientRect();
+      const hovering = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      const relX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      const relY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      target.x = hovering ? relX * 0.9 : (e.clientX / window.innerWidth - 0.5) * 0.5;
+      target.y = hovering ? relY * 0.6 : (e.clientY / window.innerHeight - 0.5) * 0.3;
     };
 
     const clock = new THREE.Clock();
     let raf = 0;
     let onScreen = true;
+    let contextLost = false;
 
     const tick = () => {
-      if (!onScreen || document.hidden) {
+      if (contextLost || !onScreen || document.hidden) {
         raf = 0;
         return;
       }
       const t = clock.getElapsedTime();
-      cur.x += (target.x - cur.x) * 0.045;
-      cur.y += (target.y - cur.y) * 0.045;
-      root.rotation.y = t * 0.28 + cur.x;
-      root.rotation.x = Math.sin(t * 0.4) * 0.09 + cur.y;
-      root.position.y = Math.sin(t * 0.7) * 0.08;
-      ring.rotation.z = t * 0.16;
+      cur.x += (target.x - cur.x) * 0.1;
+      cur.y += (target.y - cur.y) * 0.1;
+      wordmark.rotation.y = BASE_Y + Math.sin(t * 0.35) * 0.22 + cur.x * 0.9;
+      wordmark.rotation.x = BASE_X + cur.y * 0.45 + Math.sin(t * 0.5) * 0.04;
+      root.position.y = Math.sin(t * 0.7) * 0.07;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
@@ -133,17 +144,33 @@ export default function HeroMark({ onFail }) {
       if (!raf) raf = requestAnimationFrame(tick);
     };
 
-    const io = new IntersectionObserver(([entry]) => {
-      onScreen = entry.isIntersecting;
-      if (onScreen) start();
-    });
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen) start();
+      },
+      { threshold: 0.05, rootMargin: "200px" }
+    );
     const onVisibility = () => {
       if (!document.hidden) start();
+    };
+    // A lost context (GPU reset, tab discard) pauses rendering; the browser
+    // usually restores it and three.js re-initialises on that event.
+    const onContextLost = (e) => {
+      e.preventDefault();
+      contextLost = true;
+    };
+    const onContextRestored = () => {
+      contextLost = false;
+      resize();
+      start();
     };
 
     resize();
     start();
     io.observe(cv);
+    cv.addEventListener("webglcontextlost", onContextLost);
+    cv.addEventListener("webglcontextrestored", onContextRestored);
     window.addEventListener("resize", resize);
     window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
@@ -151,15 +178,18 @@ export default function HeroMark({ onFail }) {
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
+      cv.removeEventListener("webglcontextlost", onContextLost);
+      cv.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("visibilitychange", onVisibility);
-      geo.dispose();
-      mat.dispose();
-      edgesGeo.dispose();
-      edgesMat.dispose();
-      ringGeo.dispose();
-      ringMat.dispose();
+      cGeo.dispose();
+      bar1.dispose();
+      bar2.dispose();
+      metal.dispose();
+      accent.dispose();
+      // No forceContextLoss(): the canvas element outlives this effect under
+      // React StrictMode and a forced loss would poison the next mount.
       renderer.dispose();
     };
   }, [onFail]);

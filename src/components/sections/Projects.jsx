@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { PROJECTS } from "../../constants";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { FEATURED_PROJECT, PROJECTS } from "../../constants";
+import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
-import { EASE_OUT_EXPO } from "../../utils/motion";
-import { TiltCard } from "../ui/TiltCard";
+import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
+import { scrollWindowTo } from "../../utils/scroll";
 
 const pad3 = (n) => String(n).padStart(3, "0");
+const AUTO_ADVANCE_MS = 3200;
 
 const FeatureList = ({ items, className }) => (
   <ul className={cx("m-0 grid list-none gap-[11px] p-0", className)}>
@@ -43,18 +45,109 @@ const ImpactBox = ({ text, labelled = true }) => (
   </div>
 );
 
+const SwapButton = ({ dir, label, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={label}
+    className={cx(
+      "absolute top-1/2 z-[6] flex h-[38px] w-[38px] -translate-y-1/2 items-center justify-center rounded-full border border-slate-400/22 bg-ink/65 text-slate-300 backdrop-blur-sm transition-[background-color,border-color,transform] duration-300 hover:border-accent-mid/50 hover:bg-accent-deep/35 active:scale-95",
+      dir < 0 ? "left-[14px]" : "right-[14px]"
+    )}
+  >
+    <i className={dir < 0 ? "ri-arrow-left-s-line text-xl" : "ri-arrow-right-s-line text-xl"} aria-hidden="true" />
+  </button>
+);
+
+/** Cross-fading screenshot gallery with dots, prev/next, and auto-advance. */
+const CardSwap = ({ images, logo, title }) => {
+  const [idx, setIdx] = useState(0);
+  const reduced = useReducedMotion();
+  const [nonce, setNonce] = useState(0); // bump to restart the auto timer
+  const hoverRef = useRef(false);
+
+  useEffect(() => {
+    if (reduced) return;
+    const t = setInterval(() => {
+      if (!hoverRef.current) setIdx((i) => (i + 1) % images.length);
+    }, AUTO_ADVANCE_MS);
+    return () => clearInterval(t);
+  }, [images.length, reduced, nonce]);
+
+  const go = (next) => {
+    setIdx((next + images.length) % images.length);
+    setNonce((n) => n + 1);
+  };
+
+  return (
+    <div
+      className="relative min-h-[260px] overflow-hidden bg-[#05070a] sm:min-h-[360px] lg:min-h-[480px]"
+      onMouseEnter={() => (hoverRef.current = true)}
+      onMouseLeave={() => (hoverRef.current = false)}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={`${title} screenshots`}
+    >
+      {images.map((img, i) => (
+        <img
+          key={img.src}
+          src={img.src}
+          alt={img.alt}
+          loading={i === 0 ? "eager" : "lazy"}
+          aria-hidden={i !== idx}
+          className={cx(
+            "absolute inset-0 h-full w-full object-contain transition-opacity duration-[550ms] ease-out",
+            i === idx ? "opacity-100" : "opacity-0"
+          )}
+        />
+      ))}
+
+      <div className="absolute left-5 top-5 z-[5] flex h-11 w-11 items-center justify-center rounded-xl border border-slate-400/20 bg-[#05070a] p-[7px]">
+        <img src={logo} alt={`${title} logo`} className="h-full w-full object-contain" />
+      </div>
+
+      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(11,15,24,0.5) 0%, rgba(11,15,24,0.06) 40%, transparent 100%)" }} />
+      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.68), transparent 46%)" }} />
+
+      <div className="absolute bottom-[18px] right-5 z-[5] flex gap-[6px]" role="tablist" aria-label="Choose screenshot">
+        {images.map((img, i) => (
+          <button
+            key={img.src}
+            type="button"
+            role="tab"
+            aria-selected={i === idx}
+            aria-label={`Screenshot ${i + 1} of ${images.length}`}
+            onClick={() => go(i)}
+            className={cx(
+              "h-[6px] rounded-full transition-[background-color,width] duration-300",
+              i === idx ? "w-4 bg-accent" : "w-[6px] bg-white/30 hover:bg-white/60"
+            )}
+          />
+        ))}
+      </div>
+
+      <SwapButton dir={-1} label="Previous screen" onClick={() => go(idx - 1)} />
+      <SwapButton dir={1} label="Next screen" onClick={() => go(idx + 1)} />
+    </div>
+  );
+};
+
 const FeaturedProject = ({ project }) => (
-  <RevealOnScroll className="mt-[46px]">
-    <TiltCard className="relative overflow-hidden rounded-[26px] border border-slate-400/14 bg-panel/60 backdrop-blur-[14px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/42 hover:shadow-[0_30px_90px_-40px_rgba(37,99,235,0.6)]">
+  <div className="relative mt-[46px]">
+    {/* breathing halo behind the card */}
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute -inset-[3px] z-0 animate-cx-glow-halo rounded-[29px] blur-[20px]"
+      style={{ background: "linear-gradient(120deg, rgba(37,99,235,0.4), rgba(56,189,248,0.16), rgba(37,99,235,0.4))" }}
+    />
+    <RevealOnScroll className="relative z-[1] overflow-hidden rounded-[26px] border border-slate-400/14 bg-panel/60 backdrop-blur-[14px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/42 hover:shadow-[0_30px_90px_-40px_rgba(37,99,235,0.6)]">
       <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
         <div className="p-7 sm:p-10 lg:px-12 lg:pb-12 lg:pt-[52px]">
           <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.22em] text-accent">
             <span className="h-px w-[22px] bg-accent" />
             FEATURED
           </div>
-          <h3 className="m-0 mt-6 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-fg-bright text-balance sm:text-4xl">
-            {project.title}
-          </h3>
+          <h3 className="m-0 mt-6 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-fg-bright text-balance sm:text-4xl">{project.title}</h3>
           <div className="mt-3 text-sm text-accent-mid">{project.subtitle}</div>
           <p className="m-0 mt-6 text-[15px] leading-[1.75] text-[#97a2b5] text-pretty">{project.description}</p>
           <FeatureList items={project.features} className="mt-[30px] gap-3 [&>li]:text-[13px]" />
@@ -63,170 +156,166 @@ const FeaturedProject = ({ project }) => (
           </div>
           <TagList tags={project.tags} className="mt-7" />
         </div>
-
-        <div className="group/img relative min-h-[260px] overflow-hidden sm:min-h-[360px] lg:min-h-[480px]">
-          <img
-            src={project.image}
-            alt={`${project.title} interface`}
-            className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-left-top transition-transform duration-[1200ms] ease-out-expo group-hover/tilt:scale-[1.07]"
-          />
-          <div
-            className="absolute inset-0 transition-opacity duration-700 group-hover/tilt:opacity-80"
-            style={{ background: "linear-gradient(100deg, rgba(11,15,24,0.96) 0%, rgba(11,15,24,0.42) 34%, rgba(11,15,24,0.18) 100%)" }}
-          />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.72), transparent 46%)" }} />
-        </div>
+        <CardSwap images={project.gallery} logo={project.logo} title={project.title} />
       </div>
-    </TiltCard>
-  </RevealOnScroll>
+    </RevealOnScroll>
+  </div>
 );
 
-const ArchiveItem = ({ project, open, onToggle }) => {
-  const bodyId = `project-${project.id}`;
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={bodyId}
+/** Detail body shown in the shared archive panel. */
+const ProjectDetail = ({ project }) => (
+  <div className="p-5 sm:p-7">
+    <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14">
+      <img src={project.image} alt={`${project.title} interface`} loading="lazy" className="h-full w-full object-cover object-top" />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.5), transparent 55%)" }} />
+    </div>
+    <p className="m-0 mt-5 text-[14.5px] leading-[1.74] text-muted text-pretty">{project.description}</p>
+    <FeatureList items={project.features} className="mt-[22px]" />
+    <div className="mt-[22px]">
+      <ImpactBox text={project.impact} />
+    </div>
+    <TagList tags={project.tags} className="mt-5 gap-[7px]" />
+  </div>
+);
+
+const ArchiveRow = ({ project, open, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    aria-expanded={open}
+    aria-controls="archive-panel"
+    className={cx(
+      "group flex w-full items-center justify-between gap-5 rounded-2xl border px-5 py-5 text-left transition-[border-color,background-color] duration-[450ms] ease-out-expo md:px-[30px] md:py-[25px]",
+      open
+        ? "border-accent-mid/45 bg-accent-deep/10"
+        : "border-slate-400/13 bg-panel/82 hover:border-accent-mid/30 hover:bg-panel/95",
+      project.attention && !open && "animate-cx-glow-pulse"
+    )}
+    style={project.attention && !open ? { animationDelay: `${(project.id % 2) * 0.4}s` } : undefined}
+  >
+    <div className="flex min-w-0 items-center gap-4 md:gap-[26px]">
+      <span className={cx("font-mono text-[10px] tracking-[0.14em] transition-colors duration-400", open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid")}>
+        [{pad3(project.id)}]
+      </span>
+      <div className="min-w-0">
+        <h3
+          className={cx(
+            "m-0 text-lg font-bold leading-tight tracking-[-0.022em] text-balance transition-[color,transform] duration-400 ease-out-expo md:text-[22px]",
+            open ? "text-white" : "text-fg group-hover:translate-x-1 group-hover:text-white"
+          )}
+        >
+          {project.title}
+        </h3>
+        <div className="mt-[6px] truncate font-mono text-[9.5px] tracking-[0.2em] text-dim">{project.subtitle}</div>
+      </div>
+    </div>
+
+    <div className="flex shrink-0 items-center gap-3 md:gap-4">
+      {project.badge && (
+        <span className="hidden rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-3 py-[6px] font-mono text-[9px] tracking-[0.14em] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)] sm:inline-block">
+          {project.badge}
+        </span>
+      )}
+      <span className={cx("hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 sm:inline", open ? "text-accent-soft" : "text-faint group-hover:text-muted")}>
+        {open ? "CLOSE" : "OPEN"}
+      </span>
+      <span
+        aria-hidden="true"
         className={cx(
-          "group flex w-full items-center justify-between gap-5 rounded-2xl border px-5 py-5 text-left backdrop-blur-[12px] transition-[border-color,background-color,transform] duration-[450ms] ease-out-expo md:px-[30px] md:py-[25px]",
+          "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[17px] transition-[transform,border-color,color,background-color] duration-[550ms] ease-out-expo",
           open
-            ? "border-accent-mid/45 bg-accent-deep/10"
-            : "border-slate-400/13 bg-panel/55 hover:border-accent-mid/30 hover:bg-panel/80"
+            ? "rotate-45 border-accent-mid/55 bg-accent-deep/15 text-accent-soft"
+            : "border-slate-400/20 text-slate-400 group-hover:border-accent-mid/45 group-hover:text-fg"
         )}
       >
-        <div className="flex min-w-0 items-center gap-4 md:gap-[26px]">
-          <span
-            className={cx(
-              "font-mono text-[10px] tracking-[0.14em] transition-colors duration-400",
-              open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid"
-            )}
-          >
-            [{pad3(project.id)}]
-          </span>
-          <div className="min-w-0">
-            <h3
-              className={cx(
-                "m-0 truncate text-lg font-bold tracking-[-0.022em] transition-[color,transform] duration-400 ease-out-expo md:text-[22px]",
-                open ? "text-white" : "text-fg group-hover:translate-x-1 group-hover:text-white"
-              )}
-            >
-              {project.title}
-            </h3>
-            <div className="mt-[6px] truncate font-mono text-[9.5px] tracking-[0.2em] text-dim">{project.subtitle}</div>
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-3 md:gap-4">
-          {project.badge && (
-            <span className="hidden rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-3 py-[6px] font-mono text-[9px] tracking-[0.14em] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)] sm:inline-block">
-              {project.badge}
-            </span>
-          )}
-          <span
-            className={cx(
-              "hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 sm:inline",
-              open ? "text-accent-soft" : "text-faint group-hover:text-muted"
-            )}
-          >
-            {open ? "CLOSE" : "OPEN"}
-          </span>
-          <span
-            aria-hidden="true"
-            className={cx(
-              "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[17px] transition-[transform,border-color,color,background-color] duration-[550ms] ease-out-expo",
-              open
-                ? "rotate-180 border-accent-mid/55 bg-accent-deep/15 text-accent-soft"
-                : "border-slate-400/20 text-slate-400 group-hover:border-accent-mid/45 group-hover:text-fg"
-            )}
-          >
-            <i className="ri-arrow-down-s-line" />
-          </span>
-        </div>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            id={bodyId}
-            key="body"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ height: { duration: 0.7, ease: EASE_OUT_EXPO }, opacity: { duration: 0.45 } }}
-            className="overflow-hidden"
-          >
-            <div
-              className="mt-[14px] grid items-start gap-6 rounded-2xl border border-accent/16 p-5 sm:p-8 lg:grid-cols-2 lg:gap-[34px]"
-              style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))" }}
-            >
-              <div className="group/shot relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14">
-                <img
-                  src={project.image}
-                  alt={`${project.title} interface`}
-                  loading="lazy"
-                  className="h-full w-full object-cover object-top transition-transform duration-[1200ms] ease-out-expo group-hover/shot:scale-105"
-                />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.5), transparent 55%)" }} />
-              </div>
-              <div>
-                <p className="m-0 text-[14.5px] leading-[1.74] text-muted text-pretty">{project.description}</p>
-                <FeatureList items={project.features} className="mt-6" />
-                <div className="mt-6">
-                  <ImpactBox text={project.impact} />
-                </div>
-                <TagList tags={project.tags} className="mt-[22px] gap-[7px]" />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <i className="ri-add-line" />
+      </span>
     </div>
-  );
-};
+  </button>
+);
 
-export const Projects = () => {
+const Archive = () => {
   const [openId, setOpenId] = useState(null);
-  const featured = PROJECTS.find((p) => p.featured) ?? PROJECTS[0];
-  const archive = PROJECTS.filter((p) => p !== featured);
+  const panelRef = useRef(null);
+  const open = PROJECTS.find((p) => p.id === openId) ?? null;
+
+  // Below lg the panel stacks above the rows, so bring it into view when a
+  // row is opened; on desktop it is sticky and already visible.
+  useEffect(() => {
+    if (!openId || !panelRef.current || window.matchMedia("(min-width: 1024px)").matches) return;
+    const top = panelRef.current.getBoundingClientRect().top + window.scrollY - 16;
+    scrollWindowTo(top);
+  }, [openId]);
 
   return (
-    <>
-      <section id="work" aria-labelledby="work-heading" className="cx-container pb-10 pt-[60px]">
-        <RevealOnScroll className="cx-section-head">
-          <h2 id="work-heading" className="cx-h2">
-            Engineered works
-          </h2>
-          <span className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]">SELECTED / {pad3(PROJECTS.length).slice(1)}</span>
-        </RevealOnScroll>
-        <FeaturedProject project={featured} />
-      </section>
+    <section aria-labelledby="archive-heading" className="cx-container pb-[110px] pt-[46px]">
+      <RevealOnScroll className="cx-section-head pb-[22px]">
+        <h2 id="archive-heading" className="m-0 font-sans font-bold tracking-[-0.028em] text-fg" style={{ fontSize: "clamp(24px, 2.4vw, 34px)" }}>
+          Project archive
+        </h2>
+        <Scramble text="TAP A ROW TO EXPAND" className="hidden font-mono text-[10px] tracking-[0.24em] text-[#5b677a] sm:inline" />
+      </RevealOnScroll>
 
-      <section aria-labelledby="archive-heading" className="cx-container pb-[110px] pt-[46px]">
-        <RevealOnScroll className="cx-section-head pb-[22px]">
-          <h2
-            id="archive-heading"
-            className="m-0 font-sans font-bold tracking-[-0.028em] text-fg"
-            style={{ fontSize: "clamp(24px, 2.4vw, 34px)" }}
-          >
-            Project archive
-          </h2>
-          <span className="hidden font-mono text-[10px] tracking-[0.24em] text-[#5b677a] sm:inline">TAP A ROW TO EXPAND</span>
-        </RevealOnScroll>
-        <div className="mt-[30px] grid gap-[14px]">
-          {archive.map((project, i) => (
+      <div className="mt-[30px] flex flex-col items-start gap-[26px] lg:flex-row">
+        {/* shared detail panel: sticky on desktop, above the rows on mobile */}
+        <div
+          ref={panelRef}
+          id="archive-panel"
+          aria-live="polite"
+          className="relative w-full min-h-[420px] shrink-0 overflow-hidden rounded-2xl border border-accent/16 lg:sticky lg:top-[100px] lg:h-[max(640px,calc(100vh_-_130px))] lg:w-[560px] lg:max-w-[42vw]"
+          style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))" }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {open ? (
+              <motion.div
+                key={open.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="lg:absolute lg:inset-0 lg:overflow-y-auto"
+              >
+                <ProjectDetail project={open} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-[10px] p-10 text-center"
+              >
+                <i className="ri-folder-open-line text-[30px] text-[#38507a]" aria-hidden="true" />
+                <div className="font-mono text-[10px] tracking-[0.2em] text-faint">SELECT A PROJECT TO PREVIEW</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-[14px]">
+          {PROJECTS.map((project, i) => (
             <RevealOnScroll key={project.id} delay={i * 0.06}>
-              <ArchiveItem
-                project={project}
-                open={openId === project.id}
-                onToggle={() => setOpenId((cur) => (cur === project.id ? null : project.id))}
-              />
+              <ArchiveRow project={project} open={openId === project.id} onToggle={() => setOpenId((cur) => (cur === project.id ? null : project.id))} />
             </RevealOnScroll>
           ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
+
+export const Projects = () => (
+  <>
+    <section id="work" aria-labelledby="work-heading" className="cx-container pb-10 pt-[60px]">
+      <RevealOnScroll className="cx-section-head">
+        <Parallax as="h2" speed={0.045} id="work-heading" className="cx-h2">
+          Engineered works
+        </Parallax>
+        <Scramble text={`SELECTED / ${pad3(PROJECTS.length + 1).slice(1)}`} className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
+      </RevealOnScroll>
+      <FeaturedProject project={FEATURED_PROJECT} />
+    </section>
+    <Archive />
+  </>
+);

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
 /**
- * Tracks which section is "current" for nav highlighting. A section is
- * active while it crosses a band around 35–45% down the viewport, so the
- * highlight flips roughly when a heading reaches the reader's eye line.
+ * Scrollspy: the active section is the last one whose top has crossed a
+ * probe line 28% down the viewport. Shared by the top nav and the side rail.
  *
  * @param {string[]} ids section element ids in document order
  */
@@ -11,24 +10,36 @@ export const useActiveSection = (ids) => {
   const [active, setActive] = useState(ids[0]);
 
   useEffect(() => {
-    const elements = ids.map((id) => document.getElementById(id)).filter(Boolean);
-    if (!elements.length) return;
+    let raf = 0;
+    let last = null;
 
-    const intersecting = new Set();
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) intersecting.add(entry.target.id);
-          else intersecting.delete(entry.target.id);
-        }
-        const first = ids.find((id) => intersecting.has(id));
-        if (first) setActive(first);
-      },
-      { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
-    );
+    const compute = () => {
+      raf = 0;
+      const probe = window.innerHeight * 0.28;
+      let current = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= probe) current = id;
+        else break;
+      }
+      if (current !== last) {
+        last = current;
+        setActive(current);
+      }
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(compute);
+    };
 
-    elements.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    compute();
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      cancelAnimationFrame(raf);
+    };
   }, [ids]);
 
   return active;
