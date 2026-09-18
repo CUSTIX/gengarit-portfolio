@@ -1,11 +1,11 @@
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { animate, motion, useInView, useReducedMotion } from "framer-motion";
 import { FRAMEWORKS, LANGUAGES, PROFICIENCY } from "../../constants";
 import { useIntroReady } from "../../context/intro";
 import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
-import { EASE_OUT_EXPO } from "../../utils/motion";
+import { cx } from "../../utils/cx";
 
 const TileGrid = ({ label, items, delay = 0 }) => (
   <>
@@ -23,31 +23,84 @@ const TileGrid = ({ label, items, delay = 0 }) => (
   </>
 );
 
-const Meter = ({ name, level, index }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const ready = useIntroReady();
+const FILL_DURATION = 1.5;
+const FILL_STAGGER = 0.14;
+// ease-out-cubic: still settles softly but the sweep stays visible for most
+// of the duration (ease-out-expo finishes ~90% of the travel in 300ms)
+const FILL_EASE = [0.33, 1, 0.68, 1];
+
+/**
+ * One proficiency bar. `active` is owned by the card so all bars start
+ * together (staggered) once the whole card is on screen, instead of each
+ * one firing as it crosses the fold. The score counts up in step with the fill.
+ */
+const Meter = ({ name, level, index, active }) => {
   const reduced = useReducedMotion();
   const pct = `${level * 10}%`;
-  const show = reduced || (ready && inView);
+  const delay = index * FILL_STAGGER;
+  const [shown, setShown] = useState(reduced ? level : 0);
+  const [filling, setFilling] = useState(false);
+
+  useEffect(() => {
+    if (reduced || !active) return;
+    setFilling(true);
+    const controls = animate(0, level, {
+      duration: FILL_DURATION,
+      ease: FILL_EASE,
+      delay,
+      onUpdate: (v) => setShown(Math.round(v)),
+      onComplete: () => setFilling(false),
+    });
+    return () => controls.stop();
+  }, [active, delay, level, reduced]);
 
   return (
-    <li ref={ref} className="group/meter">
+    <li className="group/meter">
       <div className="flex justify-between font-mono text-[11px] tracking-[0.12em] text-slate-300">
         <span className="transition-colors duration-400 group-hover/meter:text-white">{name}</span>
-        <span className="text-accent-mid transition-colors duration-400 group-hover/meter:text-accent-soft">{level}</span>
+        <span className="tabular-nums text-accent-mid transition-colors duration-400 group-hover/meter:text-accent-soft">{shown}</span>
       </div>
       <div className="mt-[9px] h-[3px] overflow-hidden rounded-[3px] bg-slate-400/14">
         <motion.div
           initial={false}
-          animate={{ width: show ? pct : "0%" }}
-          transition={{ duration: 1.2, ease: EASE_OUT_EXPO, delay: index * 0.08 }}
+          animate={{ width: reduced || active ? pct : "0%" }}
+          transition={{ duration: FILL_DURATION, ease: FILL_EASE, delay }}
           className="relative h-full rounded-[3px] bg-[linear-gradient(90deg,#2563eb,#38bdf8)] transition-[filter] duration-400 group-hover/meter:brightness-125"
         >
-          <span className="absolute right-0 top-1/2 h-[7px] w-[7px] -translate-y-1/2 translate-x-1/2 rounded-full bg-accent-soft opacity-0 shadow-[0_0_10px_#7dd3fc] transition-opacity duration-400 group-hover/meter:opacity-100" />
+          {/* bright leading edge while filling, and on hover */}
+          <span
+            className={cx(
+              "absolute right-0 top-1/2 h-[7px] w-[7px] -translate-y-1/2 translate-x-1/2 rounded-full bg-accent-soft shadow-[0_0_10px_#7dd3fc] transition-opacity duration-500 group-hover/meter:opacity-100",
+              filling ? "opacity-100" : "opacity-0"
+            )}
+          />
         </motion.div>
       </div>
     </li>
+  );
+};
+
+/** The proficiency card: arms its meters once ~60% of it is in view. */
+const ProficiencyCard = () => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.6 });
+  const ready = useIntroReady();
+  const active = ready && inView;
+
+  return (
+    <RevealOnScroll delay={0.12}>
+      <div
+        ref={ref}
+        className="rounded-[20px] border border-slate-400/13 bg-panel/86 px-[30px] pb-[34px] pt-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/30 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.7)]"
+      >
+        <div className="cx-label text-dim">TECHNICAL PROFICIENCY</div>
+        <ul className="m-0 mt-[26px] grid list-none gap-[22px] p-0">
+          {PROFICIENCY.map((p, i) => (
+            <Meter key={p.name} {...p} index={i} active={active} />
+          ))}
+        </ul>
+      </div>
+    </RevealOnScroll>
   );
 };
 
@@ -68,17 +121,7 @@ export const Stack = () => (
         </div>
       </div>
 
-      <RevealOnScroll
-        delay={0.12}
-        className="rounded-[20px] border border-slate-400/13 bg-panel/86 px-[30px] pb-[34px] pt-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/30 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.7)]"
-      >
-        <div className="cx-label text-dim">TECHNICAL PROFICIENCY</div>
-        <ul className="m-0 mt-[26px] grid list-none gap-[22px] p-0">
-          {PROFICIENCY.map((p, i) => (
-            <Meter key={p.name} {...p} index={i} />
-          ))}
-        </ul>
-      </RevealOnScroll>
+      <ProficiencyCard />
     </div>
   </section>
 );
