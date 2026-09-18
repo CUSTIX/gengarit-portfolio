@@ -255,28 +255,78 @@ const ArchiveRow = ({ project, open, onToggle }) => (
     aria-expanded={open}
     aria-controls="archive-panel"
     className={cx(
-      "group flex w-full items-center justify-between gap-5 rounded-2xl border px-5 py-5 text-left transition-[border-color,background-color] duration-[450ms] ease-out-expo md:px-[30px] md:py-[25px]",
+      "group relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-2xl border px-4 py-4 text-left transition-[border-color,background-color,transform] duration-[450ms] ease-out-expo md:gap-5 md:px-6 md:py-5",
       open
         ? "border-accent-mid/45 bg-accent-deep/10"
-        : "border-slate-400/13 bg-panel/82 hover:border-accent-mid/30 hover:bg-panel/95",
+        : "border-slate-400/13 bg-panel/82 hover:border-accent-mid/30 hover:bg-panel/95 hover:-translate-y-0.5",
       project.attention && !open && "animate-cx-glow-pulse"
     )}
     style={project.attention && !open ? { animationDelay: `${(project.id % 2) * 0.4}s` } : undefined}
   >
-    <div className="flex min-w-0 items-center gap-4 md:gap-[26px]">
-      <span className={cx("font-mono text-[10px] tracking-[0.14em] transition-colors duration-400", open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid")}>
+    {/* left accent bar grows in on hover / open */}
+    <span
+      aria-hidden="true"
+      className={cx(
+        "absolute bottom-3 left-0 top-3 w-[2px] origin-center rounded-full bg-[linear-gradient(180deg,#38bdf8,#2563eb)] transition-transform duration-500 ease-out-expo",
+        open ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"
+      )}
+    />
+    {/* light sweep across the row on hover */}
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(100deg,transparent_20%,rgba(56,189,248,0.07)_50%,transparent_80%)] transition-transform duration-[900ms] ease-out-expo group-hover:translate-x-full"
+    />
+
+    <div className="flex min-w-0 items-center gap-4 md:gap-5">
+      {/* screenshot thumbnail: muted until hover / open */}
+      <span className="relative hidden h-12 w-[72px] shrink-0 overflow-hidden rounded-lg border border-slate-400/14 bg-ink sm:block">
+        <img
+          src={project.image}
+          alt=""
+          loading="lazy"
+          className={cx(
+            "h-full w-full object-cover object-top transition-[filter,opacity,transform] duration-500 ease-out-expo",
+            open ? "opacity-100 grayscale-0" : "opacity-60 grayscale-[0.7] group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
+          )}
+        />
+        <span className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.45), transparent 60%)" }} />
+      </span>
+
+      <span
+        className={cx(
+          "hidden font-mono text-[10px] tracking-[0.14em] transition-colors duration-400 md:inline",
+          open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid"
+        )}
+      >
         [{pad3(project.id)}]
       </span>
+
       <div className="min-w-0">
         <h3
           className={cx(
-            "m-0 text-lg font-bold leading-tight tracking-[-0.022em] text-balance transition-[color,transform] duration-400 ease-out-expo md:text-[22px]",
+            "m-0 text-[17px] font-bold leading-tight tracking-[-0.022em] text-balance transition-[color,transform] duration-400 ease-out-expo md:text-[21px]",
             open ? "text-white" : "text-fg group-hover:translate-x-1 group-hover:text-white"
           )}
         >
           {project.title}
         </h3>
         <div className="mt-[6px] truncate font-mono text-[9.5px] tracking-[0.2em] text-dim">{project.subtitle}</div>
+        <ul className="m-0 mt-2 hidden list-none flex-wrap gap-[5px] p-0 sm:flex" aria-label="Technologies">
+          {project.tags.slice(0, 3).map((t) => (
+            <li
+              key={t}
+              className={cx(
+                "rounded-full border px-2 py-[3px] font-mono text-[8.5px] tracking-[0.08em] transition-colors duration-400",
+                open ? "border-accent-mid/35 text-slate-300" : "border-slate-400/14 text-faint group-hover:border-accent-mid/30 group-hover:text-slate-300"
+              )}
+            >
+              {t}
+            </li>
+          ))}
+          {project.tags.length > 3 && (
+            <li className="px-1 py-[3px] font-mono text-[8.5px] tracking-[0.08em] text-faint">+{project.tags.length - 3}</li>
+          )}
+        </ul>
       </div>
     </div>
 
@@ -286,16 +336,16 @@ const ArchiveRow = ({ project, open, onToggle }) => (
           {project.badge}
         </span>
       )}
-      <span className={cx("hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 sm:inline", open ? "text-accent-soft" : "text-faint group-hover:text-muted")}>
+      <span className={cx("hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 md:inline", open ? "text-accent-soft" : "text-faint group-hover:text-muted")}>
         {open ? "CLOSE" : "OPEN"}
       </span>
       <span
         aria-hidden="true"
         className={cx(
-          "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[17px] transition-[transform,border-color,color,background-color] duration-[550ms] ease-out-expo",
+          "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[17px] transition-[transform,border-color,color,background-color,box-shadow] duration-[550ms] ease-out-expo",
           open
-            ? "rotate-45 border-accent-mid/55 bg-accent-deep/15 text-accent-soft"
-            : "border-slate-400/20 text-slate-400 group-hover:border-accent-mid/45 group-hover:text-fg"
+            ? "rotate-45 border-accent-mid/55 bg-accent-deep/15 text-accent-soft shadow-[0_0_16px_rgba(56,189,248,0.35)]"
+            : "border-slate-400/20 text-slate-400 group-hover:rotate-90 group-hover:border-accent-mid/45 group-hover:bg-accent-deep/10 group-hover:text-fg"
         )}
       >
         <i className="ri-add-line" />
