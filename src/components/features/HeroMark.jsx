@@ -48,7 +48,7 @@ const metal = new THREE.MeshPhongMaterial({ color: 0xdce4f0, emissive: 0x0a1830,
     const bevel = { depth: 0.6, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 8, curveSegments: 64 };
     // Resting pose: a 3/4 view so the extruded sides catch light and read as 3D.
     const BASE_X = -0.22;
-    const BASE_Y = 0.34;
+    const BASE_Y = 0.2;
 
     // "C": an open ring (outer arc, then inner arc back)
     const cShape = new THREE.Shape();
@@ -105,8 +105,8 @@ scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
       const half = Math.tan((camera.fov * Math.PI) / 360);
       const visH = 2 * half * camera.position.z;
       const visW = visH * aspect;
-      // fill the canvas (up to 1.15x natural size on wide columns)
-      root.scale.setScalar(Math.min(1.15, Math.min(visW, visH) / SPAN));
+      // fill the column (up to 1.1x natural size on wide columns)
+      root.scale.setScalar(Math.min(1.1, Math.min(visW, visH) / SPAN));
       renderer.render(scene, camera);
     };
 
@@ -117,8 +117,9 @@ scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
       const hovering = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
       const relX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const relY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      target.x = hovering ? relX * 0.9 : (e.clientX / window.innerWidth - 0.5) * 0.5;
-      target.y = hovering ? relY * 0.6 : (e.clientY / window.innerHeight - 0.5) * 0.3;
+      // Bounded lean: strong while hovered, gentle elsewhere; never edge-on.
+      target.x = hovering ? relX * 0.6 : (e.clientX / window.innerWidth - 0.5) * 0.45;
+      target.y = hovering ? relY * 0.45 : (e.clientY / window.innerHeight - 0.5) * 0.3;
     };
 
     const clock = new THREE.Clock();
@@ -194,5 +195,7 @@ scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
     };
   }, [onFail]);
 
-  return <canvas ref={ref} aria-hidden="true" className="absolute inset-0 h-full w-full" />;
+  // The canvas bleeds 140px past its column on both sides so the mark has
+  // room to lean toward the cursor without being cut off at the edge.
+  return <canvas ref={ref} aria-hidden="true" className="absolute inset-y-0 -left-[140px] -right-[140px] h-full w-[calc(100%+280px)]" />;
 }
