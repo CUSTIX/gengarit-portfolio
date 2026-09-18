@@ -17,13 +17,10 @@
     "@tailwindcss/vite": "^4.1.16",
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.38.0",
-    "ogl": "^1.0.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-tsparticles": "^2.12.2",
     "tailwindcss": "^4.1.16",
-    "tsparticles-engine": "^2.12.0",
-    "use-sound": "^5.0.0"
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -31,6 +28,7 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.36.0",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "gh-pages": "^6.3.0",

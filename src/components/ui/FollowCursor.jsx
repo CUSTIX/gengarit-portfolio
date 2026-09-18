@@ -1,60 +1,93 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
+const INTERACTIVE = "a, button, [role='button'], input, textarea, select, label, summary";
+
+/**
+ * Two layers that follow the pointer: a large soft glow that lags behind
+ * (lerped in rAF) and a small sharp dot that tracks exactly. The dot swells
+ * into a ring over interactive elements. Disabled on touch devices.
+ */
 export const FollowCursor = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
+  const glowRef = useRef(null);
+  const dotRef = useRef(null);
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    const updateMousePosition = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-
-      // Detect if the mouse is currently hovering over any interactive element
-      const target = e.target;
-      const isClickable = target.closest("a, button, input, textarea, [role='button']");
-      setIsHovered(!!isClickable);
-    };
-
-    window.addEventListener("mousemove", updateMousePosition);
-    return () => window.removeEventListener("mousemove", updateMousePosition);
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    setEnabled(true);
   }, []);
 
-  // Framer Motion variants to control the morphological shift
-  const variants = {
-    default: {
-      x: mousePosition.x - 16, // Centers the 32x32px circle
-      y: mousePosition.y - 16,
-      width: 32,
-      height: 32,
-      backgroundColor: "rgba(220, 38, 38, 0)", // Transparent inside
-      borderColor: "rgba(220, 38, 38, 0.4)", // Red-600 border
-      borderRadius: "50%", // Circle shape
-      boxShadow: "0 0 10px rgba(220, 38, 38, 0.15)",
-    },
-    hover: {
-      x: mousePosition.x - 10, // Centers the 20x20px block
-      y: mousePosition.y - 10,
-      width: 20,
-      height: 20,
-      backgroundColor: "rgba(239, 68, 68, 1)", // Solid Error Red
-      borderColor: "rgba(239, 68, 68, 1)", 
-      borderRadius: "0%", // Snaps to a sharp terminal block shape
-      boxShadow: "0 0 20px rgba(239, 68, 68, 0.8)",
-    }
-  };
+  useEffect(() => {
+    if (!enabled) return;
+    const glow = glowRef.current;
+    const dot = dotRef.current;
+    if (!glow || !dot) return;
+
+    let tx = window.innerWidth / 2;
+    let ty = window.innerHeight / 2;
+    let gx = tx;
+    let gy = ty;
+    let raf = 0;
+    let visible = false;
+
+    const loop = () => {
+      gx += (tx - gx) * 0.07;
+      gy += (ty - gy) * 0.07;
+      glow.style.transform = `translate3d(${gx}px, ${gy}px, 0)`;
+      raf = requestAnimationFrame(loop);
+    };
+
+    const onMove = (e) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      if (!visible) {
+        visible = true;
+        dot.style.opacity = "1";
+        glow.style.opacity = "1";
+      }
+    };
+
+    const onOver = (e) => {
+      const hit = e.target instanceof Element && e.target.closest(INTERACTIVE);
+      dot.dataset.hover = hit ? "true" : "false";
+    };
+
+    const onLeave = () => {
+      visible = false;
+      dot.style.opacity = "0";
+      glow.style.opacity = "0";
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    loop();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseover", onOver);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 pointer-events-none z-[9999] hidden lg:block border-2"
-      variants={variants}
-      animate={isHovered ? "hover" : "default"}
-      transition={{
-        // Spring physics for movement makes it feel buttery and responsive
-        x: { type: "spring", stiffness: 700, damping: 30, mass: 0.5 },
-        y: { type: "spring", stiffness: 700, damping: 30, mass: 0.5 },
-        // Linear tween for the shape transition makes the "snap" feel mechanical
-        default: { duration: 0.15 }
-      }}
-    />
+    <>
+      <div
+        ref={glowRef}
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-[1] -ml-[310px] -mt-[310px] h-[620px] w-[620px] rounded-full opacity-0 transition-opacity duration-500 will-change-transform"
+        style={{ background: "radial-gradient(circle, rgba(59,130,246,0.10), transparent 68%)" }}
+      />
+      <div
+        ref={dotRef}
+        aria-hidden="true"
+        data-hover="false"
+        className="pointer-events-none fixed left-0 top-0 z-[90] -ml-[3.5px] -mt-[3.5px] h-[7px] w-[7px] rounded-full bg-accent opacity-0 shadow-[0_0_14px_2px_rgba(56,189,248,0.75)] transition-colors duration-300 will-change-transform before:absolute before:-inset-[9px] before:rounded-full before:border before:border-accent/60 before:opacity-0 before:transition-[opacity,transform] before:duration-300 before:ease-out-expo before:scale-50 data-[hover=true]:bg-white data-[hover=true]:before:scale-100 data-[hover=true]:before:opacity-100"
+      />
+    </>
   );
 };

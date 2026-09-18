@@ -1,105 +1,58 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
+import { BRAND } from "../../constants";
 
+// Total run time of the CSS-driven intro (mark assembles, word spreads,
+// overlay scales out). Keep in sync with .cx-intro / .cx-page-in timings.
+export const INTRO_DURATION_MS = 2700;
+
+/**
+ * Brand intro: the "C" and "X" fly in from opposite sides, a flash, a
+ * hairline, then the wordmark expands and the overlay dissolves. Scrolling
+ * is locked while it plays.
+ */
 export const LoadingScreen = ({ onComplete }) => {
-  const [text, setText] = useState("");
-  const [progress, setProgress] = useState(0);
-  const fullText = "INITIALIZING SYSTEM...";
-
-  // Heavy Industrial System Boot Sequence
-  const playBootSound = () => {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const now = audioCtx.currentTime;
-
-      // 1. DEEP SERVER HUM
-      const hum = audioCtx.createOscillator();
-      const humGain = audioCtx.createGain();
-      hum.type = 'sine';
-      hum.frequency.setValueAtTime(30, now);
-      hum.frequency.exponentialRampToValueAtTime(60, now + 2);
-      
-      humGain.gain.setValueAtTime(0, now);
-      humGain.gain.linearRampToValueAtTime(0.2, now + 0.5);
-      humGain.gain.exponentialRampToValueAtTime(0.01, now + 2.5);
-      
-      hum.connect(humGain);
-      humGain.connect(audioCtx.destination);
-
-      hum.start(now);
-      hum.stop(now + 2.5);
-    } catch (e) {}
-  };
-
   useEffect(() => {
-    playBootSound();
-    
-    let index = 0;
-    const interval = setInterval(() => {
-      setText(fullText.substring(0, index));
-      index++;
-      if (index > fullText.length) {
-        clearInterval(interval);
-      }
-    }, 80);
-
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setTimeout(onComplete, 800);
-          return 100;
-        }
-        return prev + 2.5;
-      });
-    }, 40);
-
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const timer = setTimeout(onComplete, INTRO_DURATION_MS);
     return () => {
-      clearInterval(interval);
-      clearInterval(progressInterval);
+      clearTimeout(timer);
+      document.body.style.overflow = previous;
     };
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center px-6 font-mono overflow-hidden">
-      {/* HUD Background Decor */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div className="h-full w-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
+    <div
+      className="cx-intro fixed inset-0 z-[200] flex flex-col items-center justify-center gap-[46px] bg-ink"
+      role="presentation"
+    >
+      <div
+        className="cx-intro-flash absolute h-[520px] w-[520px] rounded-full opacity-0"
+        style={{ background: "radial-gradient(circle, rgba(56,189,248,0.22), transparent 66%)" }}
+      />
+
+      <div className="relative flex items-center justify-center">
+        <svg width="300" height="210" viewBox="0 0 200 140" fill="none" className="overflow-visible" aria-hidden="true">
+          <path className="cx-intro-c" d="M 88.9 43.1 A 38 38 0 1 0 88.9 96.9" stroke="url(#cxw)" strokeWidth="25" />
+          <g className="cx-intro-x">
+            <path d="M 96 33 L 172 107" stroke="url(#cxg)" strokeWidth="23" />
+            <path d="M 172 33 L 96 107" stroke="url(#cxg)" strokeWidth="23" />
+          </g>
+        </svg>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key="data-loading"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, filter: "blur(10px)" }}
-          className="w-full max-w-md flex flex-col items-center"
-        >
-          <div className="w-full space-y-6">
-            <div className="flex justify-between items-center text-[11px] font-black tracking-[0.2em]">
-                <span className="text-red-600 uppercase italic animate-pulse">{text}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-zinc-700 text-[8px]">LOAD_</span>
-                  <span className="text-zinc-100">{Math.floor(progress)}%</span>
-                </div>
-            </div>
-            <div className="h-[2px] w-full bg-zinc-900 relative rounded-full overflow-hidden">
-                <motion.div 
-                    className="h-full bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.6)]"
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.1 }}
-                />
-            </div>
-          </div>
-
-          <div className="mt-16 flex gap-12 opacity-20 text-[7px] text-zinc-500 uppercase tracking-[0.4em] font-black">
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-red-600 rounded-full" /> Memory_Map</span>
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-red-600 rounded-full" /> Logic_Core</span>
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-red-600 rounded-full" /> Uplink</span>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      <div className="flex flex-col items-center gap-5">
+        <div
+          className="cx-intro-line h-px w-[210px]"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(125,211,252,0.85), transparent)" }}
+        />
+        <div className="cx-intro-word pl-[0.42em] font-sans text-[22px] font-bold tracking-[0.42em] text-fg">
+          {BRAND.name}
+        </div>
+        <div className="cx-intro-name font-mono text-[10px] tracking-[0.34em] text-[#59657a]">
+          {BRAND.fullName.toUpperCase()}
+        </div>
+      </div>
     </div>
   );
 };

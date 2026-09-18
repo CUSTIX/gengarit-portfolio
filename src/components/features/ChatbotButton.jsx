@@ -1,75 +1,57 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { useUISounds } from "../../hooks/useUISounds";
+import { AnimatePresence, motion } from "framer-motion";
+import { EASE_OUT_EXPO } from "../../utils/motion";
 
-export const ChatbotButton = ({ onClick }) => {
-  const { playHover, playClick } = useUISounds();
-
-  return (
-    <div className="flex items-center gap-4">
-      {/* HUD Tooltip Label */}
-      <motion.div 
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="hidden md:flex flex-col items-end pointer-events-none"
-      >
-        <span className="text-[10px] font-black font-mono text-red-600 tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(220,38,38,0.5)]">
-          System_Assistant
-        </span>
-        <div className="w-16 h-px bg-gradient-to-l from-red-600/50 to-transparent mt-1" />
-      </motion.div>
-
-      {/* Main AI Node Button */}
-      <button
-        onMouseEnter={playHover}
-        onClick={() => {
-          playClick();
-          onClick();
-        }}
-        className="relative group w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95"
-        aria-label="Initialize System Assistant"
-      >
-        {/* Ambient Outer Rings */}
-        <div className="absolute inset-0 border border-dashed border-red-600/20 rounded-full animate-[spin_20s_linear_infinite]" />
-        <div className="absolute inset-2 border border-zinc-800 rounded-full group-hover:border-red-600/30 transition-colors" />
-        
-        {/* Glow Core */}
-        <div className="absolute inset-4 bg-zinc-950 rounded-full border border-red-600/40 shadow-[0_0_20px_rgba(220,38,38,0.2)] group-hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] group-hover:border-red-600 transition-all duration-500 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.15)_0%,transparent_70%)] group-hover:opacity-100 opacity-50 transition-opacity" />
-        </div>
-
-        {/* High-Tech Icon */}
-        <svg 
-          width="32" 
-          height="32" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="1.5" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-          className="relative z-10 text-red-600 group-hover:text-red-500 transition-colors drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]"
+/**
+ * Floating launcher for the assistant. Shows a one-time nudge bubble after
+ * a few seconds; the ring pulses until the panel is opened once.
+ */
+export const ChatbotButton = ({ onClick, open, nudge }) => (
+  <div className="relative flex items-center">
+    <AnimatePresence>
+      {nudge && !open && (
+        <motion.div
+          key="nudge"
+          initial={{ opacity: 0, x: 12, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 12, scale: 0.95 }}
+          transition={{ duration: 0.45, ease: EASE_OUT_EXPO }}
+          className="pointer-events-none absolute right-[68px] whitespace-nowrap rounded-full border border-slate-400/16 bg-panel/90 px-4 py-2 font-mono text-[10px] tracking-[0.18em] text-slate-300 backdrop-blur-[12px]"
         >
-          {/* Central AI Brain/Node */}
-          <path d="M12 8V4M12 20v-4M8 12H4M20 12h-4" />
-          <circle cx="12" cy="12" r="3" className="animate-pulse" />
-          <path d="M16 16l3 3M16 8l3-3M8 16l-3 3M8 8l-3-3" />
-          
-          {/* Orbital Path */}
-          <motion.circle 
-            cx="12" cy="12" r="9" 
-            strokeDasharray="4 4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            className="opacity-40"
-          />
-        </svg>
+          ASK ME ANYTHING
+          <span className="absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r border-t border-slate-400/16 bg-panel" />
+        </motion.div>
+      )}
+    </AnimatePresence>
 
-        {/* Status indicator dot */}
-        <div className="absolute top-4 right-4 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-zinc-950 shadow-[0_0_10px_rgba(220,38,38,0.8)] z-20">
-            <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75" />
-        </div>
-      </button>
-    </div>
-  );
-};
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={open ? "Close assistant" : "Open assistant"}
+      aria-expanded={open}
+      aria-controls="cx-assistant"
+      className="group relative flex h-14 w-14 items-center justify-center rounded-full border border-accent-mid/35 bg-ink/80 text-accent-soft shadow-[0_16px_40px_-16px_rgba(37,99,235,0.9)] backdrop-blur-[12px] transition-[transform,border-color,box-shadow] duration-500 ease-out-expo hover:-translate-y-0.5 hover:border-accent-mid/70 hover:shadow-[0_20px_50px_-16px_rgba(56,189,248,0.9)] active:translate-y-0"
+    >
+      {!open && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 animate-ping rounded-full border border-accent/40 [animation-duration:2.6s]"
+        />
+      )}
+      <span
+        aria-hidden="true"
+        className="absolute inset-[3px] rounded-full opacity-70 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: "radial-gradient(circle at 50% 30%, rgba(37,99,235,0.35), transparent 70%)" }}
+      />
+      <span className="relative grid h-5 w-5 place-items-center">
+        <i
+          className={`ri-chat-3-line col-start-1 row-start-1 text-xl transition-[opacity,transform] duration-400 ease-out-expo ${open ? "scale-50 opacity-0" : "scale-100 opacity-100"}`}
+          aria-hidden="true"
+        />
+        <i
+          className={`ri-close-line col-start-1 row-start-1 text-xl transition-[opacity,transform] duration-400 ease-out-expo ${open ? "scale-100 opacity-100" : "scale-50 opacity-0"}`}
+          aria-hidden="true"
+        />
+      </span>
+    </button>
+  </div>
+);

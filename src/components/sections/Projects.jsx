@@ -1,179 +1,232 @@
 import { useState } from "react";
-import { RevealOnScroll } from "../ui/RevealOnScroll";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { PROJECTS } from "../../constants";
-import { useUISounds } from "../../hooks/useUISounds";
+import { RevealOnScroll } from "../ui/RevealOnScroll";
+import { EASE_OUT_EXPO } from "../../utils/motion";
+import { TiltCard } from "../ui/TiltCard";
+import { cx } from "../../utils/cx";
 
-export const Projects = () => {
-  const [expandedId, setExpandedId] = useState(null);
-  const { playHover, playClick } = useUISounds();
+const pad3 = (n) => String(n).padStart(3, "0");
 
-  return (
-    <section id="projects" className="relative py-20 md:py-32 px-4 overflow-hidden z-10 bg-transparent">
-      {/* HUD Background Element */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent" />
+const FeatureList = ({ items, className }) => (
+  <ul className={cx("m-0 grid list-none gap-[11px] p-0", className)}>
+    {items.map((f) => (
+      <li key={f} className="cx-feature">
+        <i className="ri-focus-2-line" aria-hidden="true" />
+        {f}
+      </li>
+    ))}
+  </ul>
+);
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 grid-pattern opacity-[0.03] pointer-events-none" />
+const TagList = ({ tags, className }) => (
+  <ul className={cx("m-0 flex list-none flex-wrap gap-2 p-0", className)}>
+    {tags.map((t) => (
+      <li key={t} className="cx-tag">
+        {t}
+      </li>
+    ))}
+  </ul>
+);
 
-      <RevealOnScroll>
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-20">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="h-[2px] w-12 bg-red-600" />
-              <span className="text-xs uppercase tracking-[0.4em] text-red-500 font-bold font-mono">
-                ENGINEERED WORKS
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
-              Project <span className="text-zinc-500">Archives</span>
-            </h2>
+const ImpactBox = ({ text, labelled = true }) => (
+  <div
+    className={cx(
+      "text-[#c3cddd] text-pretty transition-[background-color,border-color] duration-400",
+      labelled
+        ? "rounded-xl border-l-2 border-accent bg-accent-deep/8 px-5 py-[18px] text-[13.5px] leading-[1.66] hover:border-accent-soft hover:bg-accent-deep/14"
+        : "rounded-[14px] border border-accent/16 bg-accent-deep/8 px-[22px] py-5 text-sm leading-[1.65] hover:border-accent/40 hover:bg-accent-deep/14"
+    )}
+  >
+    {labelled && <div className="cx-label text-[9px] text-accent-soft">IMPACT</div>}
+    <p className={cx("m-0", labelled && "mt-[10px]")}>{text}</p>
+  </div>
+);
+
+const FeaturedProject = ({ project }) => (
+  <RevealOnScroll className="mt-[46px]">
+    <TiltCard className="relative overflow-hidden rounded-[26px] border border-slate-400/14 bg-panel/60 backdrop-blur-[14px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/42 hover:shadow-[0_30px_90px_-40px_rgba(37,99,235,0.6)]">
+      <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
+        <div className="p-7 sm:p-10 lg:px-12 lg:pb-12 lg:pt-[52px]">
+          <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.22em] text-accent">
+            <span className="h-px w-[22px] bg-accent" />
+            FEATURED
           </div>
+          <h3 className="m-0 mt-6 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-fg-bright text-balance sm:text-4xl">
+            {project.title}
+          </h3>
+          <div className="mt-3 text-sm text-accent-mid">{project.subtitle}</div>
+          <p className="m-0 mt-6 text-[15px] leading-[1.75] text-[#97a2b5] text-pretty">{project.description}</p>
+          <FeatureList items={project.features} className="mt-[30px] gap-3 [&>li]:text-[13px]" />
+          <div className="mt-[30px]">
+            <ImpactBox text={project.impact} labelled={false} />
+          </div>
+          <TagList tags={project.tags} className="mt-7" />
+        </div>
 
+        <div className="group/img relative min-h-[260px] overflow-hidden sm:min-h-[360px] lg:min-h-[480px]">
+          <img
+            src={project.image}
+            alt={`${project.title} interface`}
+            className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-left-top transition-transform duration-[1200ms] ease-out-expo group-hover/tilt:scale-[1.07]"
+          />
+          <div
+            className="absolute inset-0 transition-opacity duration-700 group-hover/tilt:opacity-80"
+            style={{ background: "linear-gradient(100deg, rgba(11,15,24,0.96) 0%, rgba(11,15,24,0.42) 34%, rgba(11,15,24,0.18) 100%)" }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.72), transparent 46%)" }} />
+        </div>
+      </div>
+    </TiltCard>
+  </RevealOnScroll>
+);
 
-          {/* Shutter Accordion List */}
-          <div className="space-y-4">
-            {PROJECTS.map((project) => {
-              const isExpanded = expandedId === project.id;
-
-              return (
-                <div key={project.id} className="relative">
-                  {/* File Node Header */}
-                  <motion.div
-                    onMouseEnter={playHover}
-                    onClick={() => {
-                      playClick();
-                      setExpandedId(isExpanded ? null : project.id);
-                    }}
-                    className={`group relative z-20 p-4 md:p-6 border ${isExpanded ? 'border-red-600/50 bg-zinc-900/40' : 'border-zinc-900 bg-zinc-950/50'} cursor-pointer flex items-center justify-between transition-all duration-500 hover:border-red-600/30`}
-                  >
-                    <div className="flex items-center gap-4 md:gap-8 pr-4 data-glitch-active">
-                      <span className={`font-mono text-[9px] md:text-[10px] flex-shrink-0 transition-colors duration-500 ${isExpanded ? 'text-red-500' : 'text-zinc-700 group-hover:text-zinc-500'}`}>
-                        [{project.id.toString().padStart(3, '0')}]
-                      </span>
-                      <h3 className={`text-base md:text-3xl font-black uppercase italic tracking-tighter transition-all duration-500 pr-4 ${isExpanded ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-2'}`}>
-                        {project.title}
-                      </h3>
-                    </div>
-
-                    <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 ml-4">
-                      <span className={`hidden sm:inline-block text-[10px] font-black uppercase tracking-[0.2em] font-mono transition-all duration-500 ${isExpanded ? 'text-red-500' : 'text-zinc-800 opacity-0 group-hover:opacity-100'}`}>
-                        {isExpanded ? 'CLOSE_DATA' : 'EXTRACT_FILE'}
-                      </span>
-                      <motion.div 
-                        animate={{ rotate: isExpanded ? 180 : 0 }}
-                        className={`w-6 h-6 md:w-8 md:h-8 flex items-center justify-center border text-xs transition-colors ${isExpanded ? 'border-red-600 text-red-500' : 'border-zinc-800 text-zinc-700'}`}
-                      >
-                        ↓
-                      </motion.div>
-                    </div>
-                  </motion.div>
-
-                  {/* Hatch Reveal Content */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: "auto" }}
-                        exit={{ height: 0 }}
-                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative overflow-hidden border-x border-red-600/20 bg-zinc-950"
-                      >
-                        {/* Shutter Doors (Line Pattern) that open and fade */}
-                        <motion.div 
-                          initial={{ scaleY: 1, opacity: 1 }}
-                          animate={{ scaleY: 0, opacity: 0 }}
-                          exit={{ scaleY: 1, opacity: 1 }}
-                          transition={{ duration: 0.5 }}
-                          className="absolute inset-0 z-30 pointer-events-none flex flex-col"
-                        >
-                          <div className="flex-1 bg-zinc-900 border-b border-red-600/50" />
-                          <div className="flex-1 bg-zinc-900 border-t border-red-600/50" />
-                        </motion.div>
-
-                        {/* Content Reveal Area */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2, duration: 0.5 }}
-                          className="relative p-8 md:p-12"
-                        >
-                          {/* Aesthetic Technical Background (Replaces Image) */}
-                          <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
-                            {/* Technical Grid */}
-                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-                            
-                            {/* Scanning HUD Lines */}
-                            <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
-                            
-                            {/* Aesthetic Corner Brackets (Randomized feel) */}
-                            <div className="absolute top-10 left-10 w-20 h-20 border-t border-l border-red-600/20" />
-                            <div className="absolute bottom-10 right-10 w-20 h-20 border-b border-r border-red-600/20" />
-                          </div>
-
-                          {/* Data Content */}
-                          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                            
-                            {/* Visual Spec */}
-                            <div className="relative aspect-video overflow-hidden border border-zinc-800 group shadow-2xl bg-zinc-900">
-                              <img 
-                                src={project.image} 
-                                alt={`${project.title} technical extraction view`}
-                                loading="lazy"
-                                className="w-full h-full object-cover brightness-50 transition-transform duration-1000 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-red-600/10 mix-blend-overlay" />
-                              <div className="absolute top-4 left-4">
-                                <span className="bg-zinc-950/80 border border-red-600/30 text-red-500 text-[8px] font-mono px-2 py-1 uppercase tracking-widest">
-                                  VISUAL_BUFFER_ACTIVE
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Technical Specs */}
-                            <div className="space-y-6">
-                              <div>
-                                <span className="text-[10px] text-red-500 font-black tracking-[0.4em] uppercase block mb-2">Metadata</span>
-                                <h4 className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">
-                                  {project.title}
-                                </h4>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light italic border-l-2 border-red-600/40 pl-6 py-2">
-                                  "{project.description}"
-                                </p>
-                              </div>
-
-                              {project.impact && (
-                                <div className="bg-red-600/5 border-l-2 border-red-600 p-4 font-mono">
-                                   <span className="text-[10px] text-red-500 font-black tracking-widest block mb-1 uppercase">System_Impact</span>
-                                   <p className="text-[11px] text-zinc-300 leading-relaxed uppercase italic">
-                                     {project.impact}
-                                   </p>
-                                </div>
-                              )}
-
-                              <div className="space-y-4">
-                                <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest block border-b border-zinc-900 pb-2">Core_Parameters</span>
-                                <div className="flex flex-wrap gap-2">
-                                  {project.tags.map((tag) => (
-                                    <span key={tag} className="px-2 py-1 bg-zinc-900 border border-zinc-800 text-zinc-500 text-[9px] font-mono uppercase">
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+const ArchiveItem = ({ project, open, onToggle }) => {
+  const bodyId = `project-${project.id}`;
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={bodyId}
+        className={cx(
+          "group flex w-full items-center justify-between gap-5 rounded-2xl border px-5 py-5 text-left backdrop-blur-[12px] transition-[border-color,background-color,transform] duration-[450ms] ease-out-expo md:px-[30px] md:py-[25px]",
+          open
+            ? "border-accent-mid/45 bg-accent-deep/10"
+            : "border-slate-400/13 bg-panel/55 hover:border-accent-mid/30 hover:bg-panel/80"
+        )}
+      >
+        <div className="flex min-w-0 items-center gap-4 md:gap-[26px]">
+          <span
+            className={cx(
+              "font-mono text-[10px] tracking-[0.14em] transition-colors duration-400",
+              open ? "text-accent-soft" : "text-faint group-hover:text-accent-mid"
+            )}
+          >
+            [{pad3(project.id)}]
+          </span>
+          <div className="min-w-0">
+            <h3
+              className={cx(
+                "m-0 truncate text-lg font-bold tracking-[-0.022em] transition-[color,transform] duration-400 ease-out-expo md:text-[22px]",
+                open ? "text-white" : "text-fg group-hover:translate-x-1 group-hover:text-white"
+              )}
+            >
+              {project.title}
+            </h3>
+            <div className="mt-[6px] truncate font-mono text-[9.5px] tracking-[0.2em] text-dim">{project.subtitle}</div>
           </div>
         </div>
-      </RevealOnScroll>
-    </section>
+
+        <div className="flex shrink-0 items-center gap-3 md:gap-4">
+          {project.badge && (
+            <span className="hidden rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-3 py-[6px] font-mono text-[9px] tracking-[0.14em] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)] sm:inline-block">
+              {project.badge}
+            </span>
+          )}
+          <span
+            className={cx(
+              "hidden font-mono text-[9.5px] tracking-[0.2em] transition-colors duration-400 sm:inline",
+              open ? "text-accent-soft" : "text-faint group-hover:text-muted"
+            )}
+          >
+            {open ? "CLOSE" : "OPEN"}
+          </span>
+          <span
+            aria-hidden="true"
+            className={cx(
+              "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[17px] transition-[transform,border-color,color,background-color] duration-[550ms] ease-out-expo",
+              open
+                ? "rotate-180 border-accent-mid/55 bg-accent-deep/15 text-accent-soft"
+                : "border-slate-400/20 text-slate-400 group-hover:border-accent-mid/45 group-hover:text-fg"
+            )}
+          >
+            <i className="ri-arrow-down-s-line" />
+          </span>
+        </div>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={bodyId}
+            key="body"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ height: { duration: 0.7, ease: EASE_OUT_EXPO }, opacity: { duration: 0.45 } }}
+            className="overflow-hidden"
+          >
+            <div
+              className="mt-[14px] grid items-start gap-6 rounded-2xl border border-accent/16 p-5 sm:p-8 lg:grid-cols-2 lg:gap-[34px]"
+              style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))" }}
+            >
+              <div className="group/shot relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14">
+                <img
+                  src={project.image}
+                  alt={`${project.title} interface`}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-top transition-transform duration-[1200ms] ease-out-expo group-hover/shot:scale-105"
+                />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.5), transparent 55%)" }} />
+              </div>
+              <div>
+                <p className="m-0 text-[14.5px] leading-[1.74] text-muted text-pretty">{project.description}</p>
+                <FeatureList items={project.features} className="mt-6" />
+                <div className="mt-6">
+                  <ImpactBox text={project.impact} />
+                </div>
+                <TagList tags={project.tags} className="mt-[22px] gap-[7px]" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export const Projects = () => {
+  const [openId, setOpenId] = useState(null);
+  const featured = PROJECTS.find((p) => p.featured) ?? PROJECTS[0];
+  const archive = PROJECTS.filter((p) => p !== featured);
+
+  return (
+    <>
+      <section id="work" aria-labelledby="work-heading" className="cx-container pb-10 pt-[60px]">
+        <RevealOnScroll className="cx-section-head">
+          <h2 id="work-heading" className="cx-h2">
+            Engineered works
+          </h2>
+          <span className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]">SELECTED / {pad3(PROJECTS.length).slice(1)}</span>
+        </RevealOnScroll>
+        <FeaturedProject project={featured} />
+      </section>
+
+      <section aria-labelledby="archive-heading" className="cx-container pb-[110px] pt-[46px]">
+        <RevealOnScroll className="cx-section-head pb-[22px]">
+          <h2
+            id="archive-heading"
+            className="m-0 font-sans font-bold tracking-[-0.028em] text-fg"
+            style={{ fontSize: "clamp(24px, 2.4vw, 34px)" }}
+          >
+            Project archive
+          </h2>
+          <span className="hidden font-mono text-[10px] tracking-[0.24em] text-[#5b677a] sm:inline">TAP A ROW TO EXPAND</span>
+        </RevealOnScroll>
+        <div className="mt-[30px] grid gap-[14px]">
+          {archive.map((project, i) => (
+            <RevealOnScroll key={project.id} delay={i * 0.06}>
+              <ArchiveItem
+                project={project}
+                open={openId === project.id}
+                onToggle={() => setOpenId((cur) => (cur === project.id ? null : project.id))}
+              />
+            </RevealOnScroll>
+          ))}
+        </div>
+      </section>
+    </>
   );
 };

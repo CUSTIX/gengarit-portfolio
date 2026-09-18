@@ -6,42 +6,44 @@ export class ErrorBoundary extends React.Component {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("CRITICAL_SYSTEM_FAILURE:", error, errorInfo);
+    console.error("Unhandled render error:", error, errorInfo);
   }
 
   render() {
-    if (this.state.hasError) {
-      return (
-        <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col items-center justify-center p-8 font-mono text-red-600">
-          <div className="max-w-xl w-full border border-red-600/30 p-8 bg-red-600/5 relative">
-             {/* Corner Brackets */}
-             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-red-600" />
-             <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-600" />
+    if (!this.state.hasError) return this.props.children;
 
-             <h1 className="text-3xl font-black uppercase italic mb-6 animate-pulse">System_Critical_Failure</h1>
-             
-             <div className="space-y-4 text-xs uppercase tracking-widest leading-relaxed">
-                <p>[ERROR_LOG]: Unexpected kernel exception detected.</p>
-                <p>[STATUS]: Security protocols engaged. UI Render suspended.</p>
-                <p>[ACTION]: Please re-initialize the system link.</p>
-             </div>
-
-             <button 
-                onClick={() => window.location.reload()}
-                className="mt-10 w-full py-4 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition-all duration-300 font-black italic tracking-[0.3em]"
-             >
-                RE-INITIALIZE_UPLINK
-             </button>
-          </div>
+    return (
+      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink px-6 font-mono text-fg">
+        <div
+          className="relative w-full max-w-lg overflow-hidden rounded-[22px] border border-red-500/25 p-8"
+          style={{ background: "linear-gradient(150deg, rgba(239,68,68,0.10), rgba(11,15,24,0.85))" }}
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[2px]"
+            style={{ background: "linear-gradient(90deg, transparent, #ef4444 30%, #fca5a5 50%, #ef4444 70%, transparent)" }}
+          />
+          <div className="text-[10px] tracking-[0.26em] text-red-300">SYSTEM FAULT</div>
+          <h1 className="m-0 mt-4 font-sans text-2xl font-bold tracking-[-0.02em] text-fg-bright">
+            Something broke while rendering.
+          </h1>
+          <p className="m-0 mt-4 text-[13px] leading-relaxed text-muted">
+            The error has been logged to the console. Reloading usually clears it.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-8 w-full rounded-full border border-red-400/40 py-4 text-[12px] tracking-[0.22em] text-red-200 transition-[background-color,color,border-color] duration-300 hover:border-red-400 hover:bg-red-500/15 hover:text-white"
+          >
+            RELOAD
+          </button>
         </div>
-      );
-    }
-
-    return this.props.children;
+      </div>
+    );
   }
 }

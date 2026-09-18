@@ -1,74 +1,50 @@
-# React + Vite
+# CUSTIX — Portfolio of John Eric G. Bayer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page portfolio built with React 19, Vite 7, Tailwind CSS v4, Framer Motion, and three.js.
+The visual design is the "CUSTIX Portfolio" Claude Design hand-off (dark navy, Sora + JetBrains Mono, blue accent ramp).
 
-Currently, two official plugins are available:
+## Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # production bundle in dist/
+npm run preview  # serve dist/ locally
+npm run lint
+```
 
-## React Compiler
+## Environment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Create `.env` (never committed) with:
 
 ```
-Porfolio.1
-├─ eslint.config.js
-├─ index.html
-├─ package-lock.json
-├─ package.json
-├─ public
-│  ├─ pictures
-│  │  ├─ 670951310_1307978511479293_20827009997221945_n.png
-│  │  ├─ Bayer_Resume.pdf
-│  │  ├─ ERR-EBUS_LOGO.png
-│  │  ├─ FLOOD_SS.png
-│  │  ├─ GENGAR_PNG.png
-│  │  ├─ HOA_CDD_SS.png
-│  │  ├─ MABELS_SS.png
-│  │  ├─ MORPHRIFT_SS.png
-│  │  ├─ POS_SS.png
-│  │  ├─ SENTINELS_SS.png
-│  │  └─ weweqwfqfqw.png
-│  └─ vite.svg
-├─ README.md
-├─ REDESIGN_GUIDE.md
-├─ src
-│  ├─ App.jsx
-│  ├─ assets
-│  │  └─ react.svg
-│  ├─ components
-│  │  ├─ features
-│  │  │  ├─ ChatbotButton.jsx
-│  │  │  ├─ ChatbotModal.jsx
-│  │  │  └─ ParticleEffect.jsx
-│  │  ├─ layout
-│  │  │  ├─ LoadingScreen.jsx
-│  │  │  ├─ MobileMenu.jsx
-│  │  │  ├─ Navbar.jsx
-│  │  │  └─ ScrollIndicator.jsx
-│  │  ├─ sections
-│  │  │  ├─ About.jsx
-│  │  │  ├─ Contact.jsx
-│  │  │  ├─ Home.jsx
-│  │  │  └─ Projects.jsx
-│  │  └─ ui
-│  │     ├─ FollowCursor.jsx
-│  │     ├─ GlassmorphismCard.jsx
-│  │     ├─ RevealOnScroll.jsx
-│  │     └─ SpotlightCard.jsx
-│  ├─ constants
-│  │  └─ index.js
-│  ├─ hooks
-│  │  └─ useUISounds.js
-│  ├─ index.css
-│  └─ main.jsx
-├─ tailwind.config.js
-├─ vercel.json
-└─ vite.config.js
+VITE_SERVICE_ID=...       # EmailJS service id   (falls back to the shipped public id)
+VITE_TEMPLATE_ID=...      # EmailJS template id
+VITE_PUBLIC_KEY=...       # EmailJS public key
+VITE_GEMINI_API_KEY=...   # optional: enables the Gemini-backed assistant
+VITE_GEMINI_MODEL=...     # optional: defaults to gemini-2.5-flash
+```
+
+Without a Gemini key the assistant answers from the keyword FAQ in `src/constants/index.js`.
+Vite inlines every `VITE_*` value into the client bundle, so restrict the Gemini key by HTTP referrer.
+
+## Structure
 
 ```
+src/
+├─ App.jsx                      page shell: backdrop, intro, nav, sections, assistant
+├─ index.css                    design tokens (@theme), primitives (.cx-*), intro keyframes
+├─ constants/index.js           all copy and data (brand, projects, stack, timeline, socials)
+├─ context/intro.js             "intro finished" flag that gates scroll reveals
+├─ hooks/
+│  ├─ useActiveSection.js       nav highlight via IntersectionObserver
+│  └─ useChatbot.js             Gemini chat with FAQ fallback
+├─ components/
+│  ├─ layout/    Navbar (sticky + mobile menu + scroll progress), LoadingScreen (intro), Footer
+│  ├─ sections/  Home (hero), Projects (featured + archive), About, Stack, Path, Contact
+│  ├─ features/  ParticleEffect (filament canvas), HeroMark (three.js, lazy), Chatbot*
+│  └─ ui/        Logo, RevealOnScroll, Magnetic, TiltCard, FollowCursor, ErrorBoundary
+└─ utils/        cx (class join), motion (easing), scroll
+```
+
+Section anchors: `#top`, `#work`, `#about`, `#stack`, `#path`, `#contact`.

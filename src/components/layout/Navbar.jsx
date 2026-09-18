@@ -1,85 +1,178 @@
 import { useEffect, useState } from "react";
-import { useUISounds } from "../../hooks/useUISounds";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
+import { BRAND, NAV_LINKS } from "../../constants";
+import { LogoMark } from "../ui/Logo";
+import { Magnetic } from "../ui/Magnetic";
+import { EASE_OUT_EXPO } from "../../utils/motion";
+import { cx } from "../../utils/cx";
 
-export const Navbar = ({ menuOpen, setMenuOpen, activeSection }) => {
-    const { playHover, playClick } = useUISounds();
+const NavLink = ({ id, name, active, onClick, className, underline = true }) => (
+  <a
+    href={`#${id}`}
+    onClick={onClick}
+    aria-current={active ? "location" : undefined}
+    className={cx(
+      "group/link relative py-1 transition-colors duration-300",
+      active ? "text-fg" : "text-nav hover:text-fg",
+      className
+    )}
+  >
+    {name.toUpperCase()}
+    {underline && (
+      <span
+        aria-hidden="true"
+        className={cx(
+          "absolute -bottom-0.5 left-0 h-px w-full origin-left bg-gradient-to-r from-accent-mid to-accent transition-transform duration-500 ease-out-expo",
+          active ? "scale-x-100" : "scale-x-0 group-hover/link:scale-x-100"
+        )}
+      />
+    )}
+  </a>
+);
 
-    const navLinks = [
-        { name: "Home", href: "#home", id: "home" },
-        { name: "About", href: "#about", id: "about" },
-        { name: "Systems", href: "#projects", id: "projects" },
-        { name: "Contact", href: "#contact", id: "contact" }
-    ];
+/**
+ * Sticky frosted header. Desktop: inline links + CONTACT pill. Mobile: a
+ * hamburger that drops a panel below the bar. A hairline along the bottom
+ * fills with the page scroll progress.
+ */
+export const Navbar = ({ activeSection }) => {
+  const [open, setOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
 
-    const scrollToTop = (e) => {
-        e.preventDefault();
-        playClick();
-        const scrollContainer = document.querySelector('main');
-        if (scrollContainer) {
-            scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+  // Close the mobile panel on Escape and when the viewport grows past md.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = (e) => e.matches && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    mq.addEventListener("change", onChange);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", onChange);
     };
+  }, [open]);
 
-    return (
-        <nav>
-            <div className="navbar-container">
-                <a 
-                    href="#home" 
-                    onMouseEnter={playHover}
-                    onClick={scrollToTop}
-                    className="navbar-logo"
-                    aria-label="ERR-EBUS Home - Scroll to top"
+  const close = () => setOpen(false);
+
+  return (
+    <header className="sticky top-0 z-[80]">
+      <nav
+        aria-label="Primary"
+        className="relative border-b border-slate-400/10 bg-ink/62 backdrop-blur-[18px]"
+      >
+        <div className="cx-container flex h-[76px] items-center justify-between">
+          <Magnetic
+            href="#top"
+            onClick={close}
+            aria-label={`${BRAND.name} — back to top`}
+            className="group flex items-center gap-3"
+          >
+            <LogoMark
+              size={38}
+              className="transition-transform duration-500 ease-out-expo group-hover:-rotate-6 group-hover:scale-105 group-hover:drop-shadow-[0_0_12px_rgba(56,189,248,0.55)]"
+            />
+            <span className="font-sans text-[15px] font-bold tracking-[0.30em] text-fg">{BRAND.name}</span>
+          </Magnetic>
+
+          {/* Desktop */}
+          <div className="hidden items-center gap-[34px] font-mono text-[11px] tracking-[0.16em] md:flex">
+            {NAV_LINKS.map((link) => (
+              <NavLink key={link.id} {...link} active={activeSection === link.id} />
+            ))}
+            <Magnetic
+              href="#contact"
+              className={cx(
+                "rounded-full border px-5 py-[11px] transition-[border-color,background-color,box-shadow,color] duration-400",
+                activeSection === "contact"
+                  ? "border-accent-mid/70 bg-accent-deep/25 text-white shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
+                  : "border-accent-mid/35 bg-accent-deep/12 text-fg hover:border-accent-mid/70 hover:bg-accent-deep/25 hover:text-white hover:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
+              )}
+            >
+              CONTACT
+            </Magnetic>
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+            className="relative -mr-2 flex h-11 w-11 items-center justify-center rounded-full text-fg transition-colors hover:bg-white/5 md:hidden"
+          >
+            <span
+              className={cx(
+                "absolute h-px w-5 bg-current transition-transform duration-400 ease-out-expo",
+                open ? "rotate-45" : "-translate-y-[5px]"
+              )}
+            />
+            <span
+              className={cx(
+                "absolute h-px w-5 bg-current transition-[opacity,transform] duration-300",
+                open ? "scale-x-0 opacity-0" : ""
+              )}
+            />
+            <span
+              className={cx(
+                "absolute h-px w-5 bg-current transition-transform duration-400 ease-out-expo",
+                open ? "-rotate-45" : "translate-y-[5px]"
+              )}
+            />
+          </button>
+        </div>
+
+        {/* Scroll progress */}
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX: scrollYProgress }}
+          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-accent-deep via-accent to-accent-soft opacity-80"
+        />
+      </nav>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-nav"
+            key="mobile-nav"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
+            className="absolute inset-x-0 top-full border-b border-slate-400/10 bg-ink shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9)] md:hidden"
+          >
+            <div className="cx-container flex flex-col gap-1 py-4 font-mono text-[12px] tracking-[0.18em]">
+              {NAV_LINKS.map((link, i) => (
+                <motion.div
+                  key={link.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 + i * 0.05, duration: 0.4, ease: EASE_OUT_EXPO }}
                 >
-                    {/* Technical Logo Container */}
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-11 md:h-11">
-                        <div className="absolute inset-0 bg-red-600/10 blur-lg rounded-full animate-pulse" />
-                        <img 
-                            src="/pictures/ERR-EBUS_LOGO.webp"
-                            alt="ERR-EBUS Logo"
-                            className="navbar-logo-img relative z-10 drop-shadow-[0_0_8px_rgba(220,38,38,0.5)]"
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'block';
-                            }}
-                        />
-                        <span className="hidden text-red-600 font-black">E</span>
-                    </div>
-
-                    {/* Two-Tone Brand Name */}
-                    <span className="tracking-tighter">
-                        <span className="text-red-600">ERR</span>
-                        <span className="text-zinc-600">-EBUS</span>
-                    </span>
-                </a>
-
-                {/* Desktop Navigation */}
-                <div className={`navbar-links ${menuOpen ? "mobile-open" : ""}`}>
-                    {navLinks.map((link) => (
-                        <a
-                            key={link.name}
-                            href={link.href}
-                            onMouseEnter={playHover}
-                            onClick={(e) => {
-                                playClick();
-                                if (menuOpen) setMenuOpen(false);
-                            }}
-                            className={activeSection === link.id ? "active" : ""}
-                        >
-                            {link.name}
-                        </a>
-                    ))}
-                </div>
-
-                {/* Mobile Menu Toggle */}
-                <button 
-                    className="mobile-menu-button"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-                    aria-expanded={menuOpen}
-                >
-                    {menuOpen ? "✕" : "☰"}
-                </button>
+                  <NavLink
+                    {...link}
+                    active={activeSection === link.id}
+                    onClick={close}
+                    underline={false}
+                    className="block py-3"
+                  />
+                </motion.div>
+              ))}
+              <motion.a
+                href="#contact"
+                onClick={close}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 + NAV_LINKS.length * 0.05, duration: 0.4, ease: EASE_OUT_EXPO }}
+                className="mt-2 inline-flex w-fit rounded-full border border-accent-mid/35 bg-accent-deep/12 px-5 py-[11px] text-fg"
+              >
+                CONTACT
+              </motion.a>
             </div>
-        </nav>
-    );
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
 };
