@@ -5,6 +5,7 @@ import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
+import { EASE_OUT_EXPO } from "../../utils/motion";
 import { scrollWindowTo } from "../../utils/scroll";
 
 const pad3 = (n) => String(n).padStart(3, "0");
@@ -162,20 +163,89 @@ const FeaturedProject = ({ project }) => (
   </div>
 );
 
+// Entrance choreography for the archive panel: children rise in one after
+// another; the screenshot settles from a slight zoom while a scan line sweeps it.
+const detailStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+const detailItem = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE_OUT_EXPO } },
+};
+const detailShot = {
+  hidden: { opacity: 0, scale: 1.035 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: EASE_OUT_EXPO } },
+};
+
+const Bracket = ({ className }) => (
+  <span aria-hidden="true" className={cx("pointer-events-none absolute h-[14px] w-[14px] border-accent-soft/70", className)} />
+);
+
 /** Detail body shown in the shared archive panel. */
 const ProjectDetail = ({ project }) => (
-  <div className="p-5 sm:p-7">
-    <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14">
-      <img src={project.image} alt={`${project.title} interface`} loading="lazy" className="h-full w-full object-cover object-top" />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.5), transparent 55%)" }} />
-    </div>
-    <p className="m-0 mt-5 text-[14.5px] leading-[1.74] text-muted text-pretty">{project.description}</p>
-    <FeatureList items={project.features} className="mt-[22px]" />
-    <div className="mt-[22px]">
+  <motion.div variants={detailStagger} initial="hidden" animate="visible" className="relative p-5 sm:p-7">
+    {/* header strip */}
+    <motion.div variants={detailItem} className="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[9.5px] tracking-[0.2em]">
+      <span className="text-accent-soft">[{pad3(project.id)}]</span>
+      <span className="text-dim">{project.subtitle.toUpperCase()}</span>
+      {project.badge && (
+        <span className="ml-auto rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-[10px] py-[5px] text-[9px] tracking-[0.14em] text-white">{project.badge}</span>
+      )}
+    </motion.div>
+    <motion.h3 variants={detailItem} className="m-0 mt-2 text-[21px] font-bold leading-tight tracking-[-0.022em] text-fg-bright text-balance">
+      {project.title}
+    </motion.h3>
+
+    {/* framed screenshot with corner brackets and a one-time scan sweep */}
+    <motion.div variants={detailShot} className="group/shot relative mt-5 aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14 bg-ink">
+      <img
+        src={project.image}
+        alt={`${project.title} interface`}
+        loading="lazy"
+        className="h-full w-full object-cover object-top transition-transform duration-[1200ms] ease-out-expo group-hover/shot:scale-[1.04]"
+      />
+      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.55), transparent 55%)" }} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(125,211,252,0.7), transparent)" }} />
+      <motion.div
+        aria-hidden="true"
+        initial={{ top: "-30%", opacity: 0 }}
+        animate={{ top: "110%", opacity: [0, 0.7, 0.7, 0] }}
+        transition={{ duration: 1.1, ease: "easeInOut", delay: 0.35 }}
+        className="pointer-events-none absolute inset-x-0 h-[22%]"
+        style={{ background: "linear-gradient(180deg, transparent, rgba(56,189,248,0.22) 50%, transparent)" }}
+      />
+      <Bracket className="left-2 top-2 border-l border-t" />
+      <Bracket className="right-2 top-2 border-r border-t" />
+      <Bracket className="bottom-2 left-2 border-b border-l" />
+      <Bracket className="bottom-2 right-2 border-b border-r" />
+      <span className="pointer-events-none absolute bottom-3 left-3 font-mono text-[8.5px] tracking-[0.22em] text-slate-300/80">
+        {project.tags.length} TECHNOLOGIES · {project.features.length} CORE FEATURES
+      </span>
+    </motion.div>
+
+    <motion.p variants={detailItem} className="m-0 mt-5 text-[14.5px] leading-[1.74] text-muted text-pretty">
+      {project.description}
+    </motion.p>
+    <motion.ul variants={detailStagger} className="m-0 mt-[22px] grid list-none gap-[11px] p-0">
+      {project.features.map((f) => (
+        <motion.li key={f} variants={detailItem} className="cx-feature">
+          <i className="ri-focus-2-line" aria-hidden="true" />
+          {f}
+        </motion.li>
+      ))}
+    </motion.ul>
+    <motion.div variants={detailItem} className="mt-[22px]">
       <ImpactBox text={project.impact} />
-    </div>
-    <TagList tags={project.tags} className="mt-5 gap-[7px]" />
-  </div>
+    </motion.div>
+    <motion.ul variants={detailStagger} className="m-0 mt-5 flex list-none flex-wrap gap-[7px] p-0">
+      {project.tags.map((t) => (
+        <motion.li key={t} variants={detailItem} className="cx-tag">
+          {t}
+        </motion.li>
+      ))}
+    </motion.ul>
+  </motion.div>
 );
 
 const ArchiveRow = ({ project, open, onToggle }) => (
@@ -265,14 +335,34 @@ const Archive = () => {
           className="relative w-full min-h-[420px] shrink-0 overflow-hidden rounded-2xl border border-accent/16 lg:sticky lg:top-[100px] lg:h-[max(640px,calc(100vh_-_130px))] lg:w-[560px] lg:max-w-[42vw]"
           style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))" }}
         >
+          {/* faint grid + a glow that brightens when a project is open */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(148,163,184,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.05) 1px, transparent 1px)",
+              backgroundSize: "36px 36px",
+              maskImage: "radial-gradient(ellipse 90% 70% at 50% 0%, #000, transparent 75%)",
+              WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 50% 0%, #000, transparent 75%)",
+            }}
+          />
+          <motion.div
+            aria-hidden="true"
+            animate={{ opacity: open ? 1 : 0.35, scale: open ? 1 : 0.8 }}
+            transition={{ duration: 0.8, ease: EASE_OUT_EXPO }}
+            className="pointer-events-none absolute -right-24 -top-32 h-[360px] w-[360px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 66%)" }}
+          />
+
           <AnimatePresence mode="wait" initial={false}>
             {open ? (
               <motion.div
                 key={open.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
+                exit={{ opacity: 0, transition: { duration: 0.25 } }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 className="lg:absolute lg:inset-0 lg:overflow-y-auto"
               >
                 <ProjectDetail project={open} />
@@ -282,12 +372,17 @@ const Archive = () => {
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.25 } }}
                 transition={{ duration: 0.45, ease: "easeOut" }}
-                className="absolute inset-0 flex flex-col items-center justify-center gap-[10px] p-10 text-center"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-[14px] p-10 text-center"
               >
-                <i className="ri-folder-open-line text-[30px] text-[#38507a]" aria-hidden="true" />
-                <div className="font-mono text-[10px] tracking-[0.2em] text-faint">SELECT A PROJECT TO PREVIEW</div>
+                <span className="relative flex h-16 w-16 items-center justify-center">
+                  <span className="absolute inset-0 animate-cx-ring-spin rounded-full border border-dashed border-accent/25 [animation-duration:18s]" />
+                  <span className="absolute inset-[6px] animate-cx-pulse rounded-full bg-accent-deep/10" />
+                  <i className="ri-folder-open-line relative animate-cx-drift text-[30px] text-[#4b6a9a] [animation-duration:5s]" aria-hidden="true" />
+                </span>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-[#5b677a]">SELECT A PROJECT TO PREVIEW</div>
+                <div className="font-mono text-[9px] tracking-[0.18em] text-faint">{PROJECTS.length} SYSTEMS ARCHIVED</div>
               </motion.div>
             )}
           </AnimatePresence>
