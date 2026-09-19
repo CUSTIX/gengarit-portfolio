@@ -28,3 +28,6 @@ dist-ssr
 
 # Claude Design hand-off reference (kept locally, not shipped)
 design_handoff_custix_portfolio/
+
+# Lighthouse CI output
+.lighthouseci/

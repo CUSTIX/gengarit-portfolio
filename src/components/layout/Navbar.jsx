@@ -6,6 +6,7 @@ import { LogoMark } from "../ui/Logo";
 import { Magnetic } from "../ui/Magnetic";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { cx } from "../../utils/cx";
+import { Icon } from "../ui/Icon";
 
 const NavLink = ({ id, name, active, onClick, className, underline = true }) => (
   <a
@@ -89,7 +90,7 @@ export const Navbar = ({ activeSection }) => {
               title="Search (Ctrl/⌘ K)"
               className="group/kbd flex items-center gap-2 rounded-full border border-slate-400/14 px-3 py-[7px] text-[10px] tracking-[0.12em] text-dim transition-[border-color,color,background-color] duration-300 hover:border-accent-mid/40 hover:bg-accent-deep/10 hover:text-slate-200"
             >
-              <i className="ri-search-line text-[12px] transition-transform duration-400 ease-out-expo group-hover/kbd:scale-110" aria-hidden="true" />
+              <Icon name="ri-search-line" className="text-[12px] transition-transform duration-400 ease-out-expo group-hover/kbd:scale-110" />
               <kbd className="font-mono">⌘K</kbd>
             </button>
             <Magnetic
@@ -188,7 +189,7 @@ export const Navbar = ({ activeSection }) => {
                   }}
                   className="inline-flex items-center gap-2 rounded-full border border-slate-400/16 px-4 py-[11px] text-[11px] text-slate-300 transition-colors hover:border-accent-mid/40 hover:text-white"
                 >
-                  <i className="ri-search-line" aria-hidden="true" /> SEARCH
+                  <Icon name="ri-search-line" /> SEARCH
                 </button>
               </motion.div>
               <motion.div
@@ -206,7 +207,7 @@ export const Navbar = ({ activeSection }) => {
                     aria-label={s.name}
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-400/14 text-slate-400 transition-[border-color,color,background-color] duration-300 hover:border-accent-mid/50 hover:bg-accent-deep/12 hover:text-accent-soft"
                   >
-                    <i className={`${s.icon} text-[17px]`} aria-hidden="true" />
+                    <Icon name={s.icon} className="text-[17px]" />
                   </a>
                 ))}
               </motion.div>

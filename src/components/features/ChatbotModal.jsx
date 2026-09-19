@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BRAND } from "../../constants";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { LogoMark } from "../ui/Logo";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { cx } from "../../utils/cx";
+import { Icon } from "../ui/Icon";
 
 const GREETING = `Hey — I'm CX, ${BRAND.fullName.split(" ")[0]}'s portfolio assistant. Ask me about his projects, stack, or experience.`;
 const QUICK_REPLIES = ["What is ProSupport Squad?", "What's your strongest stack?", "Are you open to work?", "Tell me about SENTINELS"];
@@ -21,7 +23,7 @@ const BotAvatar = ({ className }) => (
 
 const UserAvatar = () => (
   <div aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] text-fg-bright">
-    <i className="ri-user-3-line text-[13px]" />
+    <Icon name="ri-user-3-line" className="text-[13px]" />
   </div>
 );
 
@@ -68,6 +70,8 @@ export const ChatbotModal = ({ open, onClose, onSend, onReset, messages, loading
   const [input, setInput] = useState("");
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef, open);
 
   // keep the newest message in view
   useEffect(() => {
@@ -109,6 +113,7 @@ export const ChatbotModal = ({ open, onClose, onSend, onReset, messages, loading
     <AnimatePresence>
       {open && (
         <motion.section
+          ref={panelRef}
           id="cx-assistant"
           key="assistant"
           role="dialog"
@@ -117,7 +122,7 @@ export const ChatbotModal = ({ open, onClose, onSend, onReset, messages, loading
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
           transition={{ duration: 0.3, ease: EASE_OUT_EXPO }}
-          className="flex h-[min(640px,calc(100vh-128px))] w-[min(392px,calc(100vw-32px))] origin-bottom-right flex-col overflow-hidden rounded-[22px] border border-slate-400/14 bg-[rgba(9,13,22,0.98)] shadow-[0_34px_80px_-28px_rgba(0,0,0,0.8),0_0_0_1px_rgba(56,189,248,0.06)]"
+          className="flex h-[min(640px,calc(100vh-128px))] w-[min(392px,calc(100vw-24px))] origin-bottom-right flex-col overflow-hidden rounded-[22px] border border-slate-400/14 bg-[rgba(9,13,22,0.98)] shadow-[0_34px_80px_-28px_rgba(0,0,0,0.8),0_0_0_1px_rgba(56,189,248,0.06)]"
         >
           {/* header */}
           <header
@@ -139,18 +144,18 @@ export const ChatbotModal = ({ open, onClose, onSend, onReset, messages, loading
                   onClick={onReset}
                   aria-label="Start a new chat"
                   title="New chat"
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-dim transition-[background-color,color] duration-200 hover:bg-white/5 hover:text-fg"
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-dim transition-[background-color,color] duration-200 hover:bg-white/5 hover:text-fg"
                 >
-                  <i className="ri-refresh-line text-[15px]" aria-hidden="true" />
+                  <Icon name="ri-refresh-line" className="text-[15px]" />
                 </button>
               )}
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-dim transition-[background-color,color] duration-200 hover:bg-white/5 hover:text-fg"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-dim transition-[background-color,color] duration-200 hover:bg-white/5 hover:text-fg"
               >
-                <i className="ri-close-line text-[17px]" aria-hidden="true" />
+                <Icon name="ri-close-line" className="text-[17px]" />
               </button>
             </div>
           </header>
@@ -216,13 +221,14 @@ export const ChatbotModal = ({ open, onClose, onSend, onReset, messages, loading
                 type="submit"
                 disabled={!input.trim() || loading || exhausted}
                 aria-label="Send"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(120deg,#2563eb,#38bdf8)] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)] transition-[transform,opacity,box-shadow] duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-10px_rgba(56,189,248,0.9)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(120deg,#2563eb,#38bdf8)] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)] transition-[transform,opacity,box-shadow] duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-10px_rgba(56,189,248,0.9)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
-                <i className="ri-send-plane-2-fill text-[15px]" aria-hidden="true" />
+                <Icon name="ri-send-plane-2-fill" className="text-[15px]" />
               </button>
             </div>
             <div className="mt-2 flex items-center justify-between px-1 font-mono text-[9px] tracking-[0.14em] text-faint">
-              <span>ENTER TO SEND · ESC TO CLOSE</span>
+              <span className="hidden sm:inline">ENTER TO SEND · ESC TO CLOSE</span>
+              <span className="sm:hidden">POWERED BY CUSTIX DATA</span>
               <span className={cx(questionsLeft <= 3 && "text-accent-soft")}>{questionsLeft} LEFT</span>
             </div>
           </form>

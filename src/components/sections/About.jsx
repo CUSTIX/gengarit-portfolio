@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useReducedMotion } from "framer-motion";
-import { ABOUT_DATA, BRAND } from "../../constants";
+import { ABOUT_DATA, BRAND, NOW } from "../../constants";
+import { Icon } from "../ui/Icon";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
 
@@ -101,18 +102,36 @@ export const About = () => (
         <RevealOnScroll
           as="ul"
           delay={0.2}
-          className="m-0 mt-11 grid list-none gap-px overflow-hidden rounded-2xl border border-slate-400/10 bg-slate-400/10 p-0 sm:grid-cols-2"
+          className="m-0 mt-11 grid list-none grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-400/10 bg-slate-400/10 p-0"
         >
           {ABOUT_DATA.capabilities.map((cap) => (
             <li key={cap.label} className="cx-lift-cell">
               <div className="cx-lift-inner">
-                <i className={cap.icon} aria-hidden="true" />
+                <Icon name={cap.icon} />
                 <div className="cx-lift-label mt-3 font-mono text-[9.5px] tracking-[0.16em]">{cap.label}</div>
                 <div className="mt-[6px] text-sm text-[#dbe3ef]">{cap.value}</div>
               </div>
             </li>
           ))}
         </RevealOnScroll>
+
+        {NOW.length > 0 && (
+          <RevealOnScroll delay={0.25} className="mt-6 rounded-2xl border border-accent/16 p-5" style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.10), rgba(11,15,24,0.6))" }}>
+            <div className="flex items-center gap-[10px] font-mono text-[10px] tracking-[0.22em] text-accent-soft">
+              <span className="h-[6px] w-[6px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_9px_#38bdf8]" />
+              NOW
+            </div>
+            <ul className="m-0 mt-3 grid list-none gap-2 p-0">
+              {NOW.map((n) => (
+                <li key={n.label} className="group/now flex items-start gap-3 rounded-xl px-2 py-[6px] transition-colors duration-300 hover:bg-white/[0.03]">
+                  <Icon name={n.icon} className="mt-[3px] text-[14px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/now:scale-110" />
+                  <span className="w-[76px] shrink-0 pt-[3px] font-mono text-[9px] tracking-[0.18em] text-dim">{n.label}</span>
+                  <span className="text-[13.5px] leading-[1.5] text-slate-200">{n.value}</span>
+                </li>
+              ))}
+            </ul>
+          </RevealOnScroll>
+        )}
       </div>
     </div>
   </section>

@@ -3,6 +3,8 @@ import { MotionConfig, useReducedMotion } from "framer-motion";
 import { ChatbotButton } from "./components/features/ChatbotButton";
 import { ChatbotModal } from "./components/features/ChatbotModal";
 import { CommandPalette } from "./components/features/CommandPalette";
+import { ShortcutsHelp } from "./components/features/ShortcutsHelp";
+import { Analytics } from "@vercel/analytics/react";
 import { ParticleEffect } from "./components/features/ParticleEffect";
 import { LoadingScreen } from "./components/layout/LoadingScreen";
 import { Navbar } from "./components/layout/Navbar";
@@ -24,6 +26,8 @@ import { PaletteContext } from "./context/palette";
 import { useActiveSection } from "./hooks/useActiveSection";
 import { useAnchorNav } from "./hooks/useAnchorNav";
 import { useChatbot } from "./hooks/useChatbot";
+import { useUISounds } from "./hooks/useUISounds";
+import { SoundContext } from "./context/sound";
 import { DEPLOYED_FOR, SECTIONS } from "./constants";
 import { cx } from "./utils/cx";
 import { scrollToSection } from "./utils/scroll";
@@ -97,28 +101,47 @@ function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const closeHelp = useCallback(() => setHelpOpen(false), []);
   useEffect(() => {
+    const typing = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        setHelpOpen(false);
         setPaletteOpen((v) => !v);
+      } else if (e.key === "?" && !typing(document.activeElement) && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setPaletteOpen(false);
+        setHelpOpen((v) => !v);
+      } else if (e.key === "Escape") {
+        setHelpOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const sounds = useUISounds();
+  const modalOpen = paletteOpen || helpOpen;
+
   const [chatOpen, setChatOpen] = useState(false);
   const closeChat = useCallback(() => setChatOpen(false), []);
-  const onPaletteAction = useCallback((action) => {
-    if (action === "assistant") setChatOpen(true);
-  }, []);
+  const onPaletteAction = useCallback(
+    (action) => {
+      if (action === "assistant") setChatOpen(true);
+      if (action === "shortcuts") setHelpOpen(true);
+      if (action === "sounds") sounds.toggle();
+    },
+    [sounds]
+  );
   const { messages, loading, sendMessage, reset, questionsLeft } = useChatbot();
 
   return (
     <MotionConfig reducedMotion="user">
       <IntroContext.Provider value={introDone}>
         <PaletteContext.Provider value={openPalette}>
+          <SoundContext.Provider value={sounds}>
           <div className="relative min-h-screen bg-ink text-fg">
             <a href="#top" className="cx-skip rounded-full border border-accent-mid/50 bg-ink px-4 py-2 font-mono text-[11px] tracking-[0.16em] text-fg">
               SKIP TO CONTENT
@@ -130,7 +153,8 @@ function App() {
 
             {!introDone && <LoadingScreen onComplete={finishIntro} />}
 
-            <div className={cx("relative z-10", pageIn)}>
+            {/* inert while a modal is open so Tab and screen readers stay inside it */}
+            <div className={cx("relative z-10", pageIn)} inert={modalOpen || undefined}>
               <Navbar activeSection={activeSection} />
               <main>
                 <Home />
@@ -149,6 +173,8 @@ function App() {
 
             <SideRail activeSection={activeSection} />
             <CommandPalette open={paletteOpen} onClose={closePalette} onAction={onPaletteAction} />
+            <ShortcutsHelp open={helpOpen} onClose={closeHelp} />
+            {import.meta.env.PROD && <Analytics />}
 
             <div className="fixed bottom-5 right-5 z-[95] flex flex-col items-end gap-[14px] sm:bottom-7 sm:right-7">
               <ChatbotModal
@@ -163,6 +189,7 @@ function App() {
               <ChatbotButton onClick={() => setChatOpen((v) => !v)} open={chatOpen} />
             </div>
           </div>
+          </SoundContext.Provider>
         </PaletteContext.Provider>
       </IntroContext.Provider>
     </MotionConfig>

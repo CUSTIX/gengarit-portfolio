@@ -1,6 +1,5 @@
 // Desktop sticky nav height; sections are scrolled to just below it.
 export const NAV_HEIGHT = 76;
-const MOBILE_BREAKPOINT = 900;
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -29,12 +28,11 @@ export const scrollWindowTo = (to, { duration = 500 } = {}) => {
   activeTween = requestAnimationFrame(step);
 };
 
-/** Scroll a section into view below the nav (no nav offset on mobile). */
+/** Scroll a section into view just below the sticky nav. */
 export const scrollToSection = (id) => {
   const target = document.getElementById(id);
   if (!target) return;
-  const navH = window.innerWidth <= MOBILE_BREAKPOINT ? 0 : NAV_HEIGHT;
-  const delta = target.getBoundingClientRect().top - navH - 12;
+  const delta = target.getBoundingClientRect().top - NAV_HEIGHT - 12;
   scrollWindowTo(window.scrollY + delta);
 };
 

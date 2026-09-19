@@ -322,8 +322,8 @@ body {
     filter: brightness(1.06);
   }
   .cx-btn-primary:hover::after { transform: translateX(120%); }
-  .cx-btn-primary .ri-arrow-right-up-line { transition: transform 0.45s var(--ease-out-expo); }
-  .cx-btn-primary:hover .ri-arrow-right-up-line { transform: translate(2px, -2px); }
+  .cx-btn-primary [data-icon="ri-arrow-right-up-line"] { transition: transform 0.45s var(--ease-out-expo); }
+  .cx-btn-primary:hover [data-icon="ri-arrow-right-up-line"] { transform: translate(2px, -2px); }
 
   /* secondary CTA: outline pill */
   .cx-btn-ghost {
@@ -371,8 +371,8 @@ body {
   .cx-feature {
     @apply flex items-center gap-3 text-[13.5px] text-slate-300;
   }
-  .cx-feature i { color: var(--color-accent); transition: transform 0.4s var(--ease-out-expo); }
-  .cx-feature:hover i { transform: scale(1.2) rotate(90deg); }
+  .cx-feature svg { color: var(--color-accent); transition: transform 0.4s var(--ease-out-expo); }
+  .cx-feature:hover svg { transform: scale(1.2) rotate(90deg); }
 
   /* hover lift for bordered tiles (Stack) */
   .cx-lift {
@@ -400,11 +400,11 @@ body {
 
   /* hover lift for cells sitting on a 1px grid (About capabilities) */
   .cx-lift-cell {
-    @apply relative bg-panel/70 px-6 py-[22px];
+    @apply relative bg-panel/70 px-4 py-4 sm:px-6 sm:py-[22px];
     transition: background-color 0.35s ease, box-shadow 0.45s ease;
   }
   .cx-lift-cell .cx-lift-inner { transition: transform 0.45s var(--ease-out-expo); }
-  .cx-lift-cell i {
+  .cx-lift-cell svg {
     color: #60a5fa;
     display: inline-block;
     transition: color 0.3s ease, transform 0.45s var(--ease-out-expo);
@@ -416,7 +416,7 @@ body {
     z-index: 1;
   }
   .cx-lift-cell:hover .cx-lift-inner { transform: translate3d(0, -4px, 0); }
-  .cx-lift-cell:hover i { color: #7dd3fc; transform: scale(1.12); }
+  .cx-lift-cell:hover svg { color: #7dd3fc; transform: scale(1.12); }
   .cx-lift-cell:hover .cx-lift-label { color: #dbe3ef; }
 }
 

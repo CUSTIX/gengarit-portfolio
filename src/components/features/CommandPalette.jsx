@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PALETTE_ITEMS } from "../../constants";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { scrollToSection } from "../../utils/scroll";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { cx } from "../../utils/cx";
+import { Icon } from "../ui/Icon";
 
 /**
  * ⌘K / Ctrl+K command palette: filters sections and social links by label
@@ -15,6 +17,8 @@ export const CommandPalette = ({ open, onClose, onAction }) => {
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef, open);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -78,6 +82,7 @@ export const CommandPalette = ({ open, onClose, onAction }) => {
           className="fixed inset-0 z-[150] flex items-start justify-center bg-ink/72 px-4 pt-[14vh] backdrop-blur-[2px]"
         >
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
@@ -89,7 +94,7 @@ export const CommandPalette = ({ open, onClose, onAction }) => {
             className="w-full max-w-[560px] overflow-hidden rounded-[18px] border border-slate-400/18 bg-[rgba(9,13,22,0.98)] shadow-[0_40px_100px_-30px_rgba(0,0,0,0.8)]"
           >
             <div className="flex items-center gap-3 border-b border-slate-400/10 px-[18px] py-4">
-              <i className="ri-search-line text-dim" aria-hidden="true" />
+              <Icon name="ri-search-line" className="text-dim" />
               <input
                 ref={inputRef}
                 type="text"
@@ -124,13 +129,13 @@ export const CommandPalette = ({ open, onClose, onAction }) => {
                     i === active ? "bg-accent-deep/16" : "hover:bg-white/[0.03]"
                   )}
                 >
-                  <i className={`${item.icon} w-[18px] text-base text-accent-mid`} aria-hidden="true" />
+                  <Icon name={item.icon} className="w-[18px] text-base text-accent-mid" />
                   <div className="min-w-0">
                     <div className="text-[13.5px] text-fg">{item.label}</div>
                     <div className="mt-[2px] font-mono text-[10px] text-[#5b677a]">{item.hint}</div>
                   </div>
-                  {item.external && <i className="ri-arrow-right-up-line ml-auto text-sm text-ghost" aria-hidden="true" />}
-                  {item.action && <i className="ri-corner-down-left-line ml-auto text-sm text-ghost" aria-hidden="true" />}
+                  {item.external && <Icon name="ri-arrow-right-up-line" className="ml-auto text-sm text-ghost" />}
+                  {item.action && <Icon name="ri-corner-down-left-line" className="ml-auto text-sm text-ghost" />}
                 </a>
               ))}
               {!filtered.length && <div className="p-5 text-center text-[13px] text-[#5b677a]">No matches</div>}

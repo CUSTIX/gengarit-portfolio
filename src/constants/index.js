@@ -5,9 +5,18 @@ export const BRAND = {
   location: "Bacolod City, Philippines",
   tagline:
     "Computer Science graduate and software engineer focused on building web applications, backend systems, and interactive digital experiences.",
-  github: "https://github.com/err-ebus",
+  github: "https://github.com/CUSTIX",
+  githubUser: "CUSTIX",
   year: 2026,
 };
+
+// "Now" — what's happening this season. Drawn from the same facts as the
+// bio/status copy; update freely.
+export const NOW = [
+  { icon: "ri-rocket-line", label: "SHIPPING", value: "ProSupport Squad — Laravel/Blade marketplace for a US-based team" },
+  { icon: "ri-flashlight-line", label: "EXPLORING", value: "Expanding the stack through R&D on the side" },
+  { icon: "ri-map-pin-2-line", label: "BASED IN", value: "Bacolod City, Philippines · GMT+8" },
+];
 
 // Top bar links, in order. CONTACT is rendered separately as the pill CTA.
 export const NAV_LINKS = [
@@ -54,6 +63,16 @@ export const FEATURED_PROJECT = {
   impact:
     "End-to-end platform connecting clients with virtual assistants, from verified hiring through active work sessions and billing.",
   tags: ["Laravel", "Blade", "Stripe", "Twilio", "Wise", "DigitalOcean", "Cloudflare"],
+  // Optional public URL for a "Visit live" button.
+  url: null,
+  caseStudy: {
+    problem:
+      "Clients needed a trustworthy way to find pre-screened virtual assistants and then run the whole engagement — profiles, hiring, live sessions, and billing were spread across disconnected tools.",
+    approach:
+      "A Laravel + Blade platform with a verified-profile and hiring flow, a live agent dashboard with time tracking, and Stripe, Twilio, and Wise integrated for payments and communication — deployed on DigitalOcean behind Cloudflare.",
+    outcome:
+      "One end-to-end system from verified hiring through active work sessions to transparent billing, running for a U.S.-based marketplace.",
+  },
   logo: "/pictures/prosupport-logo.webp",
   gallery: [
     { src: "/pictures/prosupport-hero.webp", alt: "ProSupport Squad hero section" },
@@ -228,7 +247,7 @@ export const CONTACT = {
 };
 
 export const SOCIAL_LINKS = [
-  { name: "GitHub", url: "https://github.com/err-ebus", icon: "ri-github-fill", hint: "github.com/err-ebus" },
+  { name: "GitHub", url: "https://github.com/CUSTIX", icon: "ri-github-fill", hint: "github.com/CUSTIX" },
   { name: "Facebook", url: "https://www.facebook.com/john.bayer.965/", icon: "ri-facebook-circle-fill", hint: "Message directly" },
   { name: "Instagram", url: "https://www.instagram.com/p.rd_/", icon: "ri-instagram-line", hint: "@p.rd_" },
 ];
@@ -246,6 +265,8 @@ export const PALETTE_ITEMS = [
   ...SOCIAL_LINKS.map((s) => ({ label: s.name, hint: s.hint, href: s.url, icon: s.icon, external: true })),
   { label: RESUME_LINK.name, hint: "Open in a new tab", href: RESUME_LINK.url, icon: RESUME_LINK.icon, external: true },
   { label: "Ask CX", hint: "Open the assistant", action: "assistant", icon: "ri-chat-3-line" },
+  { label: "Keyboard shortcuts", hint: "Press ? anywhere", action: "shortcuts", icon: "ri-keyboard-line" },
+  { label: "Toggle interface sounds", hint: "Soft hover ticks and click blips (off by default)", action: "sounds", icon: "ri-volume-up-line" },
 ];
 
 // Keyword fallback for the assistant when no Gemini key is configured.

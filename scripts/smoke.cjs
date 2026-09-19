@@ -19,10 +19,16 @@ const URL = `http://localhost:${PORT}/`;
 
 const findChrome = () => {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  const cache = path.join(os.homedir(), "AppData/Local/ms-playwright");
-  if (fs.existsSync(cache)) {
-    const dir = fs.readdirSync(cache).find((d) => d.startsWith("chromium-"));
-    if (dir) return path.join(cache, dir, "chrome-win/chrome.exe");
+  // Playwright's browser cache (Windows / Linux / macOS layouts)
+  const caches = [
+    [path.join(os.homedir(), "AppData/Local/ms-playwright"), "chrome-win/chrome.exe"],
+    [path.join(os.homedir(), ".cache/ms-playwright"), "chrome-linux/chrome"],
+    [path.join(os.homedir(), "Library/Caches/ms-playwright"), "chrome-mac/Chromium.app/Contents/MacOS/Chromium"],
+  ];
+  for (const [cache, bin] of caches) {
+    if (!fs.existsSync(cache)) continue;
+    const dir = fs.readdirSync(cache).find((d) => d.startsWith("chromium-") && !d.includes("headless"));
+    if (dir && fs.existsSync(path.join(cache, dir, bin))) return path.join(cache, dir, bin);
   }
   const candidates = [
     "C:/Program Files/Google/Chrome/Application/chrome.exe",

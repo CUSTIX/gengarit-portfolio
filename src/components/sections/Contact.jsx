@@ -7,6 +7,7 @@ import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { cx } from "../../utils/cx";
+import { Icon } from "../ui/Icon";
 
 // EmailJS public identifiers (safe to ship; restrict by domain in the
 // EmailJS dashboard). Override per environment via VITE_* vars.
@@ -44,7 +45,7 @@ const LinkRow = ({ href, icon, children, ...rest }) => (
     className="group/row flex items-center gap-[13px] border-b border-slate-400/10 py-[13px] text-[13.5px] text-slate-300 transition-colors duration-300 hover:text-white"
     {...rest}
   >
-    <i className={`${icon} w-5 text-[17px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/row:scale-110`} aria-hidden="true" />
+    <Icon name={icon} className="w-5 text-[17px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/row:scale-110" />
     {children}
     <i
       className="ri-arrow-right-up-line ml-auto text-sm text-ghost transition-[color,transform] duration-400 ease-out-expo group-hover/row:translate-x-0.5 group-hover/row:-translate-y-0.5 group-hover/row:text-accent-soft"
@@ -233,7 +234,7 @@ export const Contact = () => {
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white [animation-delay:0.3s]" />
                 </span>
               ) : (
-                <i className="ri-arrow-right-up-line" aria-hidden="true" />
+                <Icon name="ri-arrow-right-up-line" />
               )}
             </Magnetic>
           </form>

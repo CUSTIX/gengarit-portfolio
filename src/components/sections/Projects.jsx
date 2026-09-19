@@ -7,6 +7,7 @@ import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
 import { EASE_OUT_EXPO } from "../../utils/motion";
 import { scrollWindowTo } from "../../utils/scroll";
+import { Icon } from "../ui/Icon";
 
 const pad3 = (n) => String(n).padStart(3, "0");
 const AUTO_ADVANCE_MS = 3200;
@@ -15,7 +16,7 @@ const FeatureList = ({ items, className }) => (
   <ul className={cx("m-0 grid list-none gap-[11px] p-0", className)}>
     {items.map((f) => (
       <li key={f} className="cx-feature">
-        <i className="ri-focus-2-line" aria-hidden="true" />
+        <Icon name="ri-focus-2-line" />
         {f}
       </li>
     ))}
@@ -56,7 +57,7 @@ const SwapButton = ({ dir, label, onClick }) => (
       dir < 0 ? "left-[14px]" : "right-[14px]"
     )}
   >
-    <i className={dir < 0 ? "ri-arrow-left-s-line text-xl" : "ri-arrow-right-s-line text-xl"} aria-hidden="true" />
+    <Icon name={dir < 0 ? "ri-arrow-left-s-line" : "ri-arrow-right-s-line"} className="text-xl" />
   </button>
 );
 
@@ -82,7 +83,7 @@ const CardSwap = ({ images, logo, title }) => {
 
   return (
     <div
-      className="relative min-h-[260px] overflow-hidden bg-[#05070a] sm:min-h-[360px] lg:min-h-[480px]"
+      className="relative order-first min-h-[220px] overflow-hidden bg-[#05070a] sm:min-h-[360px] lg:order-none lg:min-h-[480px]"
       onMouseEnter={() => (hoverRef.current = true)}
       onMouseLeave={() => (hoverRef.current = false)}
       onFocus={() => (hoverRef.current = true)}
@@ -114,7 +115,7 @@ const CardSwap = ({ images, logo, title }) => {
       <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(11,15,24,0.5) 0%, rgba(11,15,24,0.06) 40%, transparent 100%)" }} />
       <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,7,12,0.68), transparent 46%)" }} />
 
-      <div className="absolute bottom-[18px] right-5 z-[5] flex gap-[6px]" role="tablist" aria-label="Choose screenshot">
+      <div className="absolute bottom-[9px] right-[11px] z-[5] flex" role="tablist" aria-label="Choose screenshot">
         {images.map((img, i) => (
           <button
             key={img.src}
@@ -123,16 +124,86 @@ const CardSwap = ({ images, logo, title }) => {
             aria-selected={i === idx}
             aria-label={`Screenshot ${i + 1} of ${images.length}`}
             onClick={() => go(i)}
-            className={cx(
-              "h-[6px] rounded-full transition-[background-color,width] duration-300",
-              i === idx ? "w-4 bg-accent" : "w-[6px] bg-white/30 hover:bg-white/60"
-            )}
-          />
+            className="group/dot flex h-6 items-center px-[3px]"
+          >
+            <span
+              className={cx(
+                "block h-[6px] rounded-full transition-[background-color,width] duration-300",
+                i === idx ? "w-4 bg-accent" : "w-[6px] bg-white/30 group-hover/dot:bg-white/60"
+              )}
+            />
+          </button>
         ))}
       </div>
 
       <SwapButton dir={-1} label="Previous screen" onClick={() => go(idx - 1)} />
       <SwapButton dir={1} label="Next screen" onClick={() => go(idx + 1)} />
+    </div>
+  );
+};
+
+const CASE_LABELS = [
+  ["problem", "PROBLEM", "ri-focus-2-line"],
+  ["approach", "APPROACH", "ri-code-s-slash-line"],
+  ["outcome", "OUTCOME", "ri-flashlight-line"],
+];
+
+/** Problem → Approach → Outcome, tucked behind a "Read the case study" toggle. */
+const CaseStudy = ({ study, url, title }) => {
+  const [open, setOpen] = useState(false);
+  if (!study && !url) return null;
+  return (
+    <div className="mt-7 flex flex-wrap items-center gap-3">
+      {study && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="case-study"
+          className="cx-btn-ghost px-5 py-3 text-[12px]"
+        >
+          <Icon name="ri-book-open-line" className="text-[15px]" />
+          {open ? "Hide case study" : "Read the case study"}
+          <Icon name="ri-arrow-down-s-line" className={cx("text-[15px] transition-transform duration-500 ease-out-expo", open && "rotate-180")} />
+        </button>
+      )}
+      {url && (
+        <a href={url} target="_blank" rel="noreferrer" className="cx-btn-primary px-5 py-3 text-[12px]">
+          Visit {title} <Icon name="ri-arrow-right-up-line" />
+        </a>
+      )}
+      <AnimatePresence initial={false}>
+        {open && study && (
+          <motion.div
+            id="case-study"
+            key="case"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ height: { duration: 0.6, ease: EASE_OUT_EXPO }, opacity: { duration: 0.35 } }}
+            className="w-full overflow-hidden"
+          >
+            <ol className="m-0 mt-3 grid list-none gap-3 p-0">
+              {CASE_LABELS.map(([key, label, icon], i) => (
+                <motion.li
+                  key={key}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.08, duration: 0.45, ease: EASE_OUT_EXPO }}
+                  className="group/case relative rounded-xl border border-slate-400/12 bg-ink/40 p-4 pl-5 transition-[border-color,background-color] duration-400 hover:border-accent-mid/35 hover:bg-ink/70"
+                >
+                  <span className="absolute bottom-3 left-0 top-3 w-[2px] rounded-full bg-[linear-gradient(180deg,#38bdf8,#2563eb)] opacity-60 transition-opacity duration-300 group-hover/case:opacity-100" aria-hidden="true" />
+                  <div className="flex items-center gap-2 font-mono text-[9.5px] tracking-[0.22em] text-accent-soft">
+                    <Icon name={icon} className="text-[13px]" />
+                    {label}
+                  </div>
+                  <p className="m-0 mt-2 text-[13.5px] leading-[1.7] text-slate-300 text-pretty">{study[key]}</p>
+                </motion.li>
+              ))}
+            </ol>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -160,6 +231,7 @@ const FeaturedProject = ({ project }) => (
             <ImpactBox text={project.impact} labelled={false} />
           </div>
           <TagList tags={project.tags} className="mt-7" />
+          <CaseStudy study={project.caseStudy} url={project.url} title={project.title} />
         </div>
         <CardSwap images={project.gallery} logo={project.logo} title={project.title} />
       </div>
@@ -234,7 +306,7 @@ const ProjectDetail = ({ project }) => (
     <motion.ul variants={detailStagger} className="m-0 mt-[22px] grid list-none gap-[11px] p-0">
       {project.features.map((f) => (
         <motion.li key={f} variants={detailItem} className="cx-feature">
-          <i className="ri-focus-2-line" aria-hidden="true" />
+          <Icon name="ri-focus-2-line" />
           {f}
         </motion.li>
       ))}
@@ -352,7 +424,7 @@ const ArchiveRow = ({ project, open, onToggle }) => (
             : "border-slate-400/20 text-slate-400 group-hover:rotate-90 group-hover:border-accent-mid/45 group-hover:bg-accent-deep/10 group-hover:text-fg"
         )}
       >
-        <i className="ri-add-line" />
+        <Icon name="ri-add-line" />
       </span>
     </div>
   </button>
@@ -433,7 +505,7 @@ const Archive = () => {
                 <span className="relative flex h-16 w-16 items-center justify-center">
                   <span className="absolute inset-0 animate-cx-ring-spin rounded-full border border-dashed border-accent/25 [animation-duration:18s]" />
                   <span className="absolute inset-[6px] animate-cx-pulse rounded-full bg-accent-deep/10" />
-                  <i className="ri-folder-open-line relative animate-cx-drift text-[30px] text-[#4b6a9a] [animation-duration:5s]" aria-hidden="true" />
+                  <Icon name="ri-folder-open-line" className="relative animate-cx-drift text-[30px] text-[#4b6a9a] [animation-duration:5s]" />
                 </span>
                 <div className="font-mono text-[10px] tracking-[0.2em] text-dim">SELECT A PROJECT TO PREVIEW</div>
                 <div className="font-mono text-[9px] tracking-[0.18em] text-[#5b677a]">{PROJECTS.length} SYSTEMS ARCHIVED</div>

@@ -12,7 +12,10 @@ npm run build    # production bundle in dist/
 npm run preview  # serve dist/ locally
 npm run lint
 npm run test:e2e # headless smoke test against dist/ (run build first)
+npm run resume   # regenerate public/resume-custix.pdf from the site data
 ```
+
+CI (`.github/workflows/ci.yml`) runs lint, build, the smoke test, and Lighthouse budgets on every push.
 
 ## Environment
 
@@ -22,13 +25,14 @@ Create `.env` (never committed) with:
 VITE_SERVICE_ID=...       # EmailJS service id   (falls back to the shipped public id)
 VITE_TEMPLATE_ID=...      # EmailJS template id
 VITE_PUBLIC_KEY=...       # EmailJS public key
-VITE_GEMINI_API_KEY=...   # optional: enables the Gemini-backed assistant
+VITE_SITE_URL=...         # absolute origin, makes OG/canonical URLs absolute
+GEMINI_API_KEY=...        # server-side key used by api/chat.js on Vercel (preferred)
+VITE_GEMINI_API_KEY=...   # dev-only browser fallback (ships in the bundle)
 VITE_GEMINI_MODEL=...     # optional: defaults to gemini-2.5-flash
 ```
 
-Without a Gemini key the assistant answers from the keyword FAQ in `src/constants/index.js`.
-Vite inlines every `VITE_*` value into the client bundle, so restrict the Gemini key by HTTP referrer
-(or move the call behind a serverless function before relying on it in production).
+The assistant tries `/api/chat` (Vercel function, key stays server-side), then the dev-only browser
+key, then the keyword FAQ in `src/constants/index.js` — so it always answers something.
 
 ## Structure
 
@@ -49,9 +53,11 @@ src/
 │  ├─ features/  ParticleEffect (starfield), HeroMark (three.js, lazy), CommandPalette, Chatbot*
 │  └─ ui/        Logo, RevealOnScroll, Parallax, Scramble, Magnetic, FollowCursor, ErrorBoundary
 └─ utils/        cx (class join), motion (easing), scroll (tween + nav offset)
+api/chat.js                     Vercel function: Gemini proxy with input caps + rate limit
 scripts/smoke.cjs               end-to-end smoke test (Playwright + system Chromium)
+scripts/resume.cjs              one-page PDF résumé generated from constants
 public/icons/                   self-hosted Devicon SVGs for the Stack tiles
 public/og.png                   1200×630 share card
 ```
 
-Section anchors: `#top`, `#about`, `#stack`, `#work`, `#path`, `#contact`. Press ⌘K / Ctrl+K for the command palette.
+Section anchors: `#top`, `#about`, `#stack`, `#work`, `#path`, `#contact`. Keyboard: ⌘K / Ctrl+K palette, `?` shortcuts sheet, Esc closes.

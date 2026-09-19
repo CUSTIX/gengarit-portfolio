@@ -5,6 +5,7 @@ import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
+import { Icon } from "../ui/Icon";
 
 const DOT = {
   accent: "bg-accent shadow-[0_0_0_4px_rgba(56,189,248,0.14)] group-hover/step:shadow-[0_0_0_6px_rgba(56,189,248,0.22),0_0_18px_rgba(56,189,248,0.7)]",
@@ -27,7 +28,7 @@ const Step = ({ item, index, last }) => (
     <div className="relative -ml-2 rounded-2xl border border-transparent px-6 py-6 transition-[border-color,background-color,box-shadow,transform] duration-500 ease-out-expo group-hover/step:-translate-y-0.5 group-hover/step:border-slate-400/14 group-hover/step:bg-panel/70 group-hover/step:shadow-[0_24px_60px_-40px_rgba(37,99,235,0.7)]">
       <div className="flex items-center gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-slate-400/14 bg-panel/80 text-accent-mid transition-[border-color,color,transform] duration-500 ease-out-expo group-hover/step:scale-110 group-hover/step:border-accent-mid/40 group-hover/step:text-accent-soft">
-          <i className={`${KIND[item.tone]} text-[15px]`} aria-hidden="true" />
+          <Icon name={KIND[item.tone]} className="text-[15px]" />
         </span>
         <div
           className={cx(
@@ -46,7 +47,7 @@ const Step = ({ item, index, last }) => (
         <ul className="m-0 mt-4 grid list-none gap-[9px] p-0">
           {item.awards.map((award) => (
             <li key={award} className="group/award flex items-center gap-[11px] text-sm text-[#a9b4c6]">
-              <i className="ri-award-line text-accent-mid transition-transform duration-500 ease-out-expo group-hover/award:-rotate-12 group-hover/award:scale-125" aria-hidden="true" />
+              <Icon name="ri-award-line" className="text-accent-mid transition-transform duration-500 ease-out-expo group-hover/award:-rotate-12 group-hover/award:scale-125" />
               {award}
             </li>
           ))}
@@ -117,7 +118,7 @@ export const Path = () => {
                     key={row.label}
                     className="group/row flex items-center gap-3 rounded-xl border border-slate-400/10 bg-ink/40 px-3 py-[10px] transition-[border-color,background-color,transform] duration-400 ease-out-expo hover:-translate-y-0.5 hover:border-accent-mid/35 hover:bg-ink/70"
                   >
-                    <i className={`${row.icon} text-[15px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/row:scale-110`} aria-hidden="true" />
+                    <Icon name={row.icon} className="text-[15px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/row:scale-110" />
                     <span className="whitespace-nowrap font-mono text-[9px] tracking-[0.2em] text-dim">{row.label}</span>
                     <span className="ml-auto text-right text-[12.5px] text-slate-200">{row.value}</span>
                   </li>
@@ -126,10 +127,10 @@ export const Path = () => {
 
               <a
                 href="#contact"
-                className="group/cta mt-5 inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-accent-soft transition-colors duration-300 hover:text-white"
+                className="group/cta mt-4 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-accent-soft transition-colors duration-300 hover:text-white"
               >
                 START A CONVERSATION
-                <i className="ri-arrow-right-line transition-transform duration-400 ease-out-expo group-hover/cta:translate-x-1" aria-hidden="true" />
+                <Icon name="ri-arrow-right-line" className="transition-transform duration-400 ease-out-expo group-hover/cta:translate-x-1" />
               </a>
             </div>
           </Parallax>

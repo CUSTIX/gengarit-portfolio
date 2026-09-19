@@ -1,6 +1,7 @@
 import { TESTIMONIALS } from "../../constants";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
+import { Icon } from "../ui/Icon";
 
 /** Short quotes from the people the systems were built for. */
 export const Signals = () => (
@@ -21,7 +22,7 @@ export const Signals = () => (
               className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full opacity-0 transition-opacity duration-700 group-hover/quote:opacity-100"
               style={{ background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 66%)" }}
             />
-            <i className="ri-double-quotes-l text-[28px] leading-none text-accent-mid/70 transition-transform duration-500 ease-out-expo group-hover/quote:-translate-y-1 group-hover/quote:scale-110" aria-hidden="true" />
+            <Icon name="ri-double-quotes-l" className="text-[28px] leading-none text-accent-mid/70 transition-transform duration-500 ease-out-expo group-hover/quote:-translate-y-1 group-hover/quote:scale-110" />
             <blockquote className="m-0 mt-3 text-[15.5px] leading-[1.7] text-slate-200 text-pretty">{t.quote}</blockquote>
             <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-400/10 pt-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full border border-accent-mid/30 bg-accent-deep/15 font-sans text-[12px] font-bold text-accent-soft">

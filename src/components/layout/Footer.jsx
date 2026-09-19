@@ -2,15 +2,18 @@ import { BRAND, RAIL_LINKS, RESUME_LINK, SOCIAL_LINKS } from "../../constants";
 import { LogoMark } from "../ui/Logo";
 import { Magnetic } from "../ui/Magnetic";
 import { scrollToTop } from "../../utils/scroll";
+import { useSound } from "../../context/sound";
+import { Icon } from "../ui/Icon";
+import { cx } from "../../utils/cx";
 
 const FooterLink = ({ href, icon, children, ...rest }) => (
   <a
     href={href}
-    className="group/fl flex items-center gap-3 py-[7px] text-[13.5px] text-muted transition-colors duration-300 hover:text-fg"
+    className="group/fl flex min-h-[44px] items-center gap-3 py-[7px] text-[13.5px] text-muted transition-colors duration-300 hover:text-fg sm:min-h-0"
     {...rest}
   >
     {icon ? (
-      <i className={`${icon} w-4 text-[15px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/fl:scale-110`} aria-hidden="true" />
+      <Icon name={icon} className="w-4 text-[15px] text-accent-mid transition-transform duration-400 ease-out-expo group-hover/fl:scale-110" />
     ) : (
       <span className="h-px w-3 bg-slate-400/40 transition-[width,background-color] duration-400 ease-out-expo group-hover/fl:w-5 group-hover/fl:bg-accent" aria-hidden="true" />
     )}
@@ -18,7 +21,9 @@ const FooterLink = ({ href, icon, children, ...rest }) => (
   </a>
 );
 
-export const Footer = () => (
+export const Footer = () => {
+  const sound = useSound();
+  return (
   <footer className="relative border-t border-slate-400/10">
     <div
       aria-hidden="true"
@@ -65,6 +70,20 @@ export const Footer = () => (
         <span>
           {BRAND.name} &copy; {BRAND.year} · DESIGNED &amp; ENGINEERED IN {BRAND.location.split(",")[0].toUpperCase()}
         </span>
+        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={sound.toggle}
+          aria-pressed={sound.enabled}
+          aria-label={sound.enabled ? "Turn interface sounds off" : "Turn interface sounds on"}
+          title={sound.enabled ? "Sounds on" : "Sounds off"}
+          className={cx(
+            "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-[border-color,background-color,color] duration-300",
+            sound.enabled ? "border-accent-mid/50 bg-accent-deep/15 text-accent-soft" : "border-slate-400/16 text-slate-400 hover:border-accent-mid/40 hover:text-slate-200"
+          )}
+        >
+          <Icon name={sound.enabled ? "ri-volume-up-line" : "ri-volume-mute-line"} className="text-[15px]" />
+        </button>
         <Magnetic
           as="button"
           type="button"
@@ -73,9 +92,11 @@ export const Footer = () => (
           className="group/top inline-flex items-center gap-3 rounded-full border border-slate-400/16 px-4 py-2 text-[9.5px] tracking-[0.22em] text-slate-300 transition-[border-color,background-color,color] duration-300 hover:border-accent-mid/50 hover:bg-accent-deep/10 hover:text-white"
         >
           BACK TO TOP
-          <i className="ri-arrow-up-line text-[13px] transition-transform duration-400 ease-out-expo group-hover/top:-translate-y-0.5" aria-hidden="true" />
+          <Icon name="ri-arrow-up-line" className="text-[13px] transition-transform duration-400 ease-out-expo group-hover/top:-translate-y-0.5" />
         </Magnetic>
+        </div>
       </div>
     </div>
   </footer>
-);
+  );
+};

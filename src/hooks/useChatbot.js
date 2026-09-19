@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { GoogleGenAI } from "@google/genai";
 import { FAQ_RESPONSES } from "../constants";
 import { DEFAULT_MODEL, MAX_OUTPUT_TOKENS, MAX_QUESTIONS, SYSTEM_PROMPT, toGeminiHistory } from "../lib/assistant";
 
@@ -15,7 +14,6 @@ const DEFAULT_RESPONSE =
 //   3. keyword FAQ — always available, no network
 const CLIENT_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const CLIENT_MODEL = import.meta.env.VITE_GEMINI_MODEL || DEFAULT_MODEL;
-const genAI = CLIENT_KEY ? new GoogleGenAI({ apiKey: CLIENT_KEY }) : null;
 
 // Remember for the session when the proxy isn't deployed (404/503) so we
 // don't pay a failed request per message.
@@ -39,7 +37,10 @@ const askProxy = async (messages, text) => {
   return typeof data.reply === "string" && data.reply.trim() ? data.reply.trim() : null;
 };
 
+// The browser SDK is ~80 KB; load it on demand and only when a key exists.
 const askBrowser = async (messages, text) => {
+  const { GoogleGenAI } = await import("@google/genai");
+  const genAI = new GoogleGenAI({ apiKey: CLIENT_KEY });
   const chat = genAI.chats.create({
     model: CLIENT_MODEL,
     config: { systemInstruction: SYSTEM_PROMPT, maxOutputTokens: MAX_OUTPUT_TOKENS },
@@ -75,7 +76,7 @@ export const useChatbot = () => {
     try {
       let reply = null;
       if (proxyAvailable) reply = await askProxy(history, text);
-      if (!reply && genAI) reply = await askBrowser(history, text);
+      if (!reply && CLIENT_KEY) reply = await askBrowser(history, text);
       if (!reply) {
         // No model available: answer from the keyword FAQ after a short beat.
         await new Promise((r) => setTimeout(r, 500));
