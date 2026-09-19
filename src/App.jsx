@@ -174,7 +174,8 @@ function App() {
             <SideRail activeSection={activeSection} />
             <CommandPalette open={paletteOpen} onClose={closePalette} onAction={onPaletteAction} />
             <ShortcutsHelp open={helpOpen} onClose={closeHelp} />
-            {import.meta.env.PROD && <Analytics />}
+            {/* Vercel exposes VITE_VERCEL_ENV at build time; elsewhere the script would 404 */}
+            {import.meta.env.VITE_VERCEL_ENV && <Analytics />}
 
             <div className="fixed bottom-5 right-5 z-[95] flex flex-col items-end gap-[14px] sm:bottom-7 sm:right-7">
               <ChatbotModal
