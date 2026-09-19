@@ -10,7 +10,7 @@ import { cx } from "../../utils/cx";
  * or hint, arrow keys move, Enter jumps, Esc / backdrop click closes.
  * `open`/`onClose` are owned by App so the hero button can open it too.
  */
-export const CommandPalette = ({ open, onClose }) => {
+export const CommandPalette = ({ open, onClose, onAction }) => {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -38,7 +38,8 @@ export const CommandPalette = ({ open, onClose }) => {
 
   const run = (item) => {
     onClose();
-    if (item.external) window.open(item.href, "_blank", "noreferrer");
+    if (item.action) onAction?.(item.action);
+    else if (item.external) window.open(item.href, "_blank", "noreferrer");
     else {
       history.replaceState(null, "", item.href);
       scrollToSection(item.href.slice(1));
@@ -108,11 +109,11 @@ export const CommandPalette = ({ open, onClose }) => {
             <div ref={listRef} role="listbox" className="max-h-[340px] overflow-y-auto p-2">
               {filtered.map((item, i) => (
                 <a
-                  key={item.href}
+                  key={item.action || item.href}
                   id={`cmdk-${i}`}
                   role="option"
                   aria-selected={i === active}
-                  href={item.href}
+                  href={item.href || "#"}
                   onMouseEnter={() => setActive(i)}
                   onClick={(e) => {
                     e.preventDefault();
@@ -129,6 +130,7 @@ export const CommandPalette = ({ open, onClose }) => {
                     <div className="mt-[2px] font-mono text-[10px] text-[#5b677a]">{item.hint}</div>
                   </div>
                   {item.external && <i className="ri-arrow-right-up-line ml-auto text-sm text-ghost" aria-hidden="true" />}
+                  {item.action && <i className="ri-corner-down-left-line ml-auto text-sm text-ghost" aria-hidden="true" />}
                 </a>
               ))}
               {!filtered.length && <div className="p-5 text-center text-[13px] text-[#5b677a]">No matches</div>}

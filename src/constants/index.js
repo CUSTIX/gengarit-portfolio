@@ -27,6 +27,17 @@ export const RAIL_LINKS = [
 // Sections in scroll order (drives scrollspy for the nav and rail).
 export const SECTIONS = RAIL_LINKS.map((l) => l.id);
 
+// Ticker under the hero: where the work has shipped.
+export const DEPLOYED_FOR = [
+  "PROSUPPORT SQUAD · US",
+  "DHSUD · NEGROS ISLAND REGION",
+  "BACOLOD CITY FLOOD MAP",
+  "SENTINELS · 2ND BEST THESIS",
+  "STI WEST NEGROS UNIVERSITY",
+  "OPEN-METEO · LEAFLET · GIS",
+  "LARAVEL · DJANGO · REACT · VUE",
+];
+
 export const HERO_STATS = [
   { value: 4, suffix: "", label: "MAJOR SYSTEMS" },
   { value: 12, suffix: "+", label: "TECHNOLOGIES" },
@@ -209,6 +220,8 @@ export const PALETTE_ITEMS = [
   { label: "Deployments", hint: "Experience timeline", href: "#path", icon: "ri-time-line" },
   { label: "Contact", hint: "Get in touch", href: "#contact", icon: "ri-mail-line" },
   ...SOCIAL_LINKS.map((s) => ({ label: s.name, hint: s.hint, href: s.url, icon: s.icon, external: true })),
+  { label: RESUME_LINK.name, hint: "Open in a new tab", href: RESUME_LINK.url, icon: RESUME_LINK.icon, external: true },
+  { label: "Ask CX", hint: "Open the assistant", action: "assistant", icon: "ri-chat-3-line" },
 ];
 
 // Keyword fallback for the assistant when no Gemini key is configured.

@@ -73,8 +73,16 @@ export const Contact = () => {
 
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
+  const [sent, setSent] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // honeypot: real users never see or fill this field
+    if (formRef.current?.elements.namedItem("company")?.value) {
+      setSent(true);
+      return;
+    }
 
     const last = parseInt(localStorage.getItem(LAST_SENT_KEY) || "0", 10);
     const now = Date.now();
@@ -91,7 +99,7 @@ export const Contact = () => {
       .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, { publicKey: PUBLIC_KEY })
       .then((result) => {
         if (result.status !== 200 && result.text !== "OK") throw new Error(`status ${result.status}`);
-        setStatus({ type: "success", message: "TRANSMISSION_SUCCESSFUL: message received. I will reply shortly." });
+        setSent(true);
         setForm(EMPTY);
         localStorage.setItem(LAST_SENT_KEY, String(Date.now()));
       })
@@ -140,7 +148,40 @@ export const Contact = () => {
             className="pointer-events-none absolute -right-20 -top-[180px] h-[360px] w-[420px]"
             style={{ background: "radial-gradient(circle, rgba(56,189,248,0.14), transparent 68%)" }}
           />
+          <AnimatePresence>
+            {sent && (
+              <motion.div
+                key="sent"
+                role="status"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[rgba(9,13,22,0.96)] p-8 text-center"
+              >
+                <span className="cx-pop flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/10 shadow-[0_0_40px_-8px_rgba(52,211,153,0.6)]">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path className="cx-draw" d="M5 12.5l4.2 4.2L19 7" stroke="#6ee7b7" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <div className="font-mono text-[10px] tracking-[0.24em] text-emerald-300">TRANSMISSION SUCCESSFUL</div>
+                <p className="m-0 max-w-[30ch] text-[15px] leading-[1.6] text-slate-200 text-pretty">Message received. I read everything personally and usually reply within 24 hours.</p>
+                <button
+                  type="button"
+                  onClick={() => setSent(false)}
+                  className="mt-2 rounded-full border border-slate-400/20 px-5 py-[10px] font-mono text-[10px] tracking-[0.2em] text-slate-300 transition-[border-color,color,background-color] duration-300 hover:border-accent-mid/50 hover:bg-accent-deep/10 hover:text-white"
+                >
+                  SEND ANOTHER
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <form ref={formRef} onSubmit={handleSubmit} className="relative grid gap-[30px] p-[26px_20px_28px] sm:p-[30px_24px_32px] lg:p-[42px_40px_40px]">
+            {/* honeypot (off-screen, ignored by assistive tech) */}
+            <div className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden" aria-hidden="true">
+              <label htmlFor="cx-company">Company</label>
+              <input id="cx-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="grid gap-[30px] md:grid-cols-2">
               <Field id="cx-name" label="YOUR NAME" type="text" name="from_name" required autoComplete="name" placeholder="Jane Mercado" value={form.from_name} onChange={onChange} />
               <Field id="cx-email" label="EMAIL" type="email" name="from_email" required autoComplete="email" placeholder="jane@company.com" value={form.from_email} onChange={onChange} />

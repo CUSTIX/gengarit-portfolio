@@ -11,6 +11,7 @@ import { Footer } from "./components/layout/Footer";
 import { FollowCursor } from "./components/ui/FollowCursor";
 import { LogoDefs } from "./components/ui/Logo";
 import { Parallax } from "./components/ui/Parallax";
+import { Marquee } from "./components/ui/Marquee";
 import { Home } from "./components/sections/Home";
 import { About } from "./components/sections/About";
 import { Stack } from "./components/sections/Stack";
@@ -22,7 +23,7 @@ import { PaletteContext } from "./context/palette";
 import { useActiveSection } from "./hooks/useActiveSection";
 import { useAnchorNav } from "./hooks/useAnchorNav";
 import { useChatbot } from "./hooks/useChatbot";
-import { SECTIONS } from "./constants";
+import { DEPLOYED_FOR, SECTIONS } from "./constants";
 import { cx } from "./utils/cx";
 import { scrollToSection } from "./utils/scroll";
 
@@ -108,6 +109,9 @@ function App() {
 
   const [chatOpen, setChatOpen] = useState(false);
   const closeChat = useCallback(() => setChatOpen(false), []);
+  const onPaletteAction = useCallback((action) => {
+    if (action === "assistant") setChatOpen(true);
+  }, []);
   const { messages, loading, sendMessage, reset, questionsLeft } = useChatbot();
 
   return (
@@ -115,6 +119,9 @@ function App() {
       <IntroContext.Provider value={introDone}>
         <PaletteContext.Provider value={openPalette}>
           <div className="relative min-h-screen bg-ink text-fg">
+            <a href="#top" className="cx-skip rounded-full border border-accent-mid/50 bg-ink px-4 py-2 font-mono text-[11px] tracking-[0.16em] text-fg">
+              SKIP TO CONTENT
+            </a>
             <LogoDefs />
             <ParticleEffect />
             <Backdrop />
@@ -126,6 +133,9 @@ function App() {
               <Navbar activeSection={activeSection} />
               <main>
                 <Home />
+                <div className="cx-container" aria-label="Selected deployments">
+                  <Marquee items={DEPLOYED_FOR} className="border-y border-slate-400/10 py-4" />
+                </div>
                 <About />
                 <Stack />
                 <Projects />
@@ -136,7 +146,7 @@ function App() {
             </div>
 
             <SideRail activeSection={activeSection} />
-            <CommandPalette open={paletteOpen} onClose={closePalette} />
+            <CommandPalette open={paletteOpen} onClose={closePalette} onAction={onPaletteAction} />
 
             <div className="fixed bottom-5 right-5 z-[95] flex flex-col items-end gap-[14px] sm:bottom-7 sm:right-7">
               <ChatbotModal
