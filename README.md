@@ -34,6 +34,15 @@ VITE_GEMINI_MODEL=...     # optional: defaults to gemini-2.5-flash
 The assistant tries `/api/chat` (Vercel function, key stays server-side), then the dev-only browser
 key, then the keyword FAQ in `src/constants/index.js` — so it always answers something.
 
+## Hosting
+
+- **Vercel** (recommended): `api/chat.js` runs as a serverless function. Set `GEMINI_API_KEY` and
+  `VITE_SITE_URL` in the project's environment variables; `vercel.json` adds security/cache headers
+  and `public/404.html` is served for unknown routes.
+- **Hostinger / any static host**: upload `dist/` after `VITE_SITE_URL=https://your-domain npm run build`.
+  There is no server there, so the assistant answers from the keyword FAQ (or set `VITE_GEMINI_API_KEY`,
+  accepting that the key is visible in the bundle). Configure the host to serve `404.html` for missing paths.
+
 ## Structure
 
 ```

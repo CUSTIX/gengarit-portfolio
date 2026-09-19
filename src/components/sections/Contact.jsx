@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { CONTACT, RESUME_LINK, SOCIAL_LINKS } from "../../constants";
+import { BRAND, CONTACT, RESUME_LINK, SOCIAL_LINKS } from "../../constants";
+import { useCopy } from "../../hooks/useCopy";
 import { Magnetic } from "../ui/Magnetic";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
@@ -53,6 +54,30 @@ const LinkRow = ({ href, icon, children, ...rest }) => (
     />
   </Magnetic>
 );
+
+const EmailRow = () => {
+  const { copied, copy } = useCopy();
+  return (
+    <div className="group/row flex items-center gap-[13px] border-b border-slate-400/10 py-[10px] text-[13.5px] text-slate-300">
+      <Icon name="ri-mail-line" className="w-5 text-[17px] text-accent-mid" />
+      <a href={`mailto:${BRAND.email}`} className="min-w-0 truncate transition-colors duration-300 hover:text-white">
+        {BRAND.email}
+      </a>
+      <button
+        type="button"
+        onClick={() => copy(BRAND.email)}
+        aria-live="polite"
+        className={cx(
+          "ml-auto inline-flex h-8 shrink-0 items-center gap-2 rounded-full border px-3 font-mono text-[9.5px] tracking-[0.18em] transition-[border-color,color,background-color] duration-300",
+          copied ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-slate-400/16 text-dim hover:border-accent-mid/50 hover:text-accent-soft"
+        )}
+      >
+        <Icon name={copied ? "ri-check-line" : "ri-file-copy-line"} className="text-[13px]" />
+        {copied ? "COPIED" : "COPY"}
+      </button>
+    </div>
+  );
+};
 
 export const Contact = () => {
   const formRef = useRef(null);
@@ -129,6 +154,7 @@ export const Contact = () => {
             {CONTACT.replyNote}
           </div>
           <div className="mt-9 grid">
+            <EmailRow />
             {SOCIAL_LINKS.map((link) => (
               <LinkRow key={link.name} href={link.url} icon={link.icon} target="_blank" rel="noreferrer">
                 {link.name}

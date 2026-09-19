@@ -7,6 +7,7 @@ export const BRAND = {
     "Computer Science graduate and software engineer focused on building web applications, backend systems, and interactive digital experiences.",
   github: "https://github.com/CUSTIX",
   githubUser: "CUSTIX",
+  email: "bayerjohneric@gmail.com",
   year: 2026,
 };
 
@@ -86,6 +87,8 @@ export const FEATURED_PROJECT = {
 
 // "Project archive": one row per system; the shared panel shows the open one.
 // `attention` rows carry a slow glow pulse to invite a click.
+// Optional per project: `links: [{ label, url }]` (repo, live demo, write-up).
+// Without links the panel offers "walkthrough on request" via the contact form.
 export const PROJECTS = [
   {
     id: 1,
@@ -213,12 +216,21 @@ export const PROFICIENCY = [
 
 export const TIMELINE = [
   {
+    period: "2025 — PRESENT",
+    org: "US-BASED COMPANY · CONFIDENTIAL",
+    role: "Software Engineer",
+    description:
+      "Building and maintaining production web systems for a US-based company — backend services, third-party integrations, and the frontend interfaces on top of them.",
+    tone: "accent",
+    current: true,
+  },
+  {
     period: "2024",
     org: "DHSUD",
     role: "Geospatial Systems Engineer",
     description:
       "Engineered and deployed an interactive geospatial dashboard (ELUPDD) for regional LGU compliance monitoring. Integrated AI-driven analytics and dynamic choropleth mapping.",
-    tone: "accent",
+    tone: "deep",
   },
   {
     period: "2024",
@@ -264,6 +276,7 @@ export const PALETTE_ITEMS = [
   { label: "Contact", hint: "Get in touch", href: "#contact", icon: "ri-mail-line" },
   ...SOCIAL_LINKS.map((s) => ({ label: s.name, hint: s.hint, href: s.url, icon: s.icon, external: true })),
   { label: RESUME_LINK.name, hint: "Open in a new tab", href: RESUME_LINK.url, icon: RESUME_LINK.icon, external: true },
+  { label: "Copy email", hint: "bayerjohneric@gmail.com", action: "copy-email", icon: "ri-mail-line" },
   { label: "Ask CX", hint: "Open the assistant", action: "assistant", icon: "ri-chat-3-line" },
   { label: "Keyboard shortcuts", hint: "Press ? anywhere", action: "shortcuts", icon: "ri-keyboard-line" },
   { label: "Toggle interface sounds", hint: "Soft hover ticks and click blips (off by default)", action: "sounds", icon: "ri-volume-up-line" },

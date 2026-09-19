@@ -321,6 +321,25 @@ const ProjectDetail = ({ project }) => (
         </motion.li>
       ))}
     </motion.ul>
+
+    <motion.div variants={detailItem} className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-400/10 pt-4">
+      {project.links?.length ? (
+        project.links.map((l) => (
+          <a key={l.url} href={l.url} target="_blank" rel="noreferrer" className="cx-btn-ghost px-4 py-2 text-[11px]">
+            <Icon name={l.icon || "ri-external-link-line"} className="text-[14px]" />
+            {l.label}
+          </a>
+        ))
+      ) : (
+        <>
+          <span className="font-mono text-[9.5px] tracking-[0.18em] text-dim">{project.access || "PRIVATE DEPLOYMENT"}</span>
+          <a href="#contact" className="group/req ml-auto inline-flex items-center gap-2 font-mono text-[9.5px] tracking-[0.18em] text-accent-soft transition-colors duration-300 hover:text-white">
+            REQUEST A WALKTHROUGH
+            <Icon name="ri-arrow-right-line" className="text-[13px] transition-transform duration-400 ease-out-expo group-hover/req:translate-x-1" />
+          </a>
+        </>
+      )}
+    </motion.div>
   </motion.div>
 );
 

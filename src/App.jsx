@@ -27,6 +27,9 @@ import { useActiveSection } from "./hooks/useActiveSection";
 import { useAnchorNav } from "./hooks/useAnchorNav";
 import { useChatbot } from "./hooks/useChatbot";
 import { useUISounds } from "./hooks/useUISounds";
+import { useCopy } from "./hooks/useCopy";
+import { Toast } from "./components/ui/Toast";
+import { BRAND } from "./constants";
 import { SoundContext } from "./context/sound";
 import { DEPLOYED_FOR, SECTIONS } from "./constants";
 import { cx } from "./utils/cx";
@@ -124,6 +127,7 @@ function App() {
 
   const sounds = useUISounds();
   const modalOpen = paletteOpen || helpOpen;
+  const { copied, copy } = useCopy();
 
   const [chatOpen, setChatOpen] = useState(false);
   const closeChat = useCallback(() => setChatOpen(false), []);
@@ -132,8 +136,9 @@ function App() {
       if (action === "assistant") setChatOpen(true);
       if (action === "shortcuts") setHelpOpen(true);
       if (action === "sounds") sounds.toggle();
+      if (action === "copy-email") copy(BRAND.email);
     },
-    [sounds]
+    [sounds, copy]
   );
   const { messages, loading, sendMessage, reset, questionsLeft } = useChatbot();
 
@@ -174,6 +179,9 @@ function App() {
             <SideRail activeSection={activeSection} />
             <CommandPalette open={paletteOpen} onClose={closePalette} onAction={onPaletteAction} />
             <ShortcutsHelp open={helpOpen} onClose={closeHelp} />
+            <Toast show={copied} icon="ri-check-line">
+              Email copied — {BRAND.email}
+            </Toast>
             {/* Vercel exposes VITE_VERCEL_ENV at build time; elsewhere the script would 404 */}
             {import.meta.env.VITE_VERCEL_ENV && <Analytics />}
 

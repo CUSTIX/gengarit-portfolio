@@ -39,8 +39,14 @@ const Step = ({ item, index, last }) => (
           {item.period} // {item.org}
         </div>
       </div>
-      <h3 className="m-0 mt-3 text-[20px] font-bold tracking-[-0.02em] text-fg-bright transition-transform duration-500 ease-out-expo group-hover/step:translate-x-1 sm:text-[23px]">
+      <h3 className="m-0 mt-3 flex flex-wrap items-center gap-3 text-[20px] font-bold tracking-[-0.02em] text-fg-bright transition-transform duration-500 ease-out-expo group-hover/step:translate-x-1 sm:text-[23px]">
         {item.role}
+        {item.current && (
+          <span className="inline-flex items-center gap-[6px] rounded-full border border-emerald-400/30 bg-emerald-400/10 px-[9px] py-[3px] font-mono text-[8.5px] tracking-[0.2em] text-emerald-300">
+            <span className="h-[5px] w-[5px] animate-cx-pulse rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+            CURRENT
+          </span>
+        )}
       </h3>
       {item.description && <p className="m-0 mt-3 max-w-[62ch] text-[15px] leading-[1.74] text-[#8e99ad] text-pretty">{item.description}</p>}
       {item.awards && (
@@ -77,7 +83,7 @@ export const Path = () => {
         <Parallax as="h2" speed={0.045} id="path-heading" className="cx-h2">
           Deployments
         </Parallax>
-        <Scramble text="2022 — 2026" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
+        <Scramble text="2022 — PRESENT" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
       <div className="mt-[46px] grid items-start gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">

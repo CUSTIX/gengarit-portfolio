@@ -54,6 +54,9 @@ export const Footer = () => {
 
       <div>
         <div className="cx-label mb-3 text-dim">CONNECT</div>
+        <FooterLink href={`mailto:${BRAND.email}`} icon="ri-mail-line">
+          {BRAND.email}
+        </FooterLink>
         {SOCIAL_LINKS.map((s) => (
           <FooterLink key={s.name} href={s.url} icon={s.icon} target="_blank" rel="noreferrer">
             {s.name}
