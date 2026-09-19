@@ -68,7 +68,7 @@ export const Home = () => {
       className="cx-container relative grid items-center gap-10 pb-[76px] pt-[68px] md:min-h-[84vh] md:pb-[120px] md:pt-[108px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-14"
     >
       <div>
-        <RevealOnScroll className="inline-flex items-center gap-[10px] rounded-full border border-slate-400/16 bg-white/[0.03] px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-slate-400">
+        <RevealOnScroll className="group/pill inline-flex items-center gap-[10px] rounded-full border border-slate-400/16 bg-white/[0.03] px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-slate-400 transition-[border-color,color,box-shadow] duration-400 hover:border-accent-mid/40 hover:text-slate-200 hover:shadow-[0_0_0_4px_rgba(37,99,235,0.08)]">
           <span className="h-[6px] w-[6px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_10px_#38bdf8]" />
           {BRAND.location.toUpperCase()}
         </RevealOnScroll>

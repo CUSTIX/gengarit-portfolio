@@ -48,15 +48,19 @@ const keywordReply = (text) => {
   return match ? match.response : DEFAULT_RESPONSE;
 };
 
+const msg = (role, content) => ({ role, content, at: Date.now() });
+
 export const useChatbot = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const asked = messages.filter((m) => m.role === "user").length;
+
+  const reset = () => setMessages([]);
 
   const sendMessage = async (text) => {
-    const asked = messages.filter((m) => m.role === "user").length;
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    setMessages((prev) => [...prev, msg("user", text)]);
     if (asked >= MAX_QUESTIONS) {
-      setMessages((prev) => [...prev, { role: "bot", content: LIMIT_REPLY }]);
+      setMessages((prev) => [...prev, msg("bot", LIMIT_REPLY)]);
       return;
     }
     setLoading(true);
@@ -74,22 +78,22 @@ export const useChatbot = () => {
         const result = await chat.sendMessage({ message: text });
         const reply = result.text?.trim();
         if (!reply) throw new Error("empty reply");
-        setMessages((prev) => [...prev, { role: "bot", content: reply }]);
+        setMessages((prev) => [...prev, msg("bot", reply)]);
       } else {
         // No API key configured: answer from the keyword FAQ instead.
         await new Promise((r) => setTimeout(r, 600));
-        setMessages((prev) => [...prev, { role: "bot", content: keywordReply(text) }]);
+        setMessages((prev) => [...prev, msg("bot", keywordReply(text))]);
       }
     } catch (error) {
       console.error("Assistant error:", error);
       setMessages((prev) => [
         ...prev,
-        { role: "bot", content: "Couldn't reach the assistant right now — use the contact form below and John will get back to you directly." },
+        msg("bot", "Couldn't reach the assistant right now — use the contact form below and John will get back to you directly."),
       ]);
     } finally {
       setLoading(false);
     }
   };
 
-  return { messages, loading, sendMessage };
+  return { messages, loading, sendMessage, reset, questionsLeft: Math.max(0, MAX_QUESTIONS - asked) };
 };

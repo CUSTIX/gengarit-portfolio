@@ -46,9 +46,14 @@ export default function HeroMark({ onFail }) {
 const metal = new THREE.MeshPhongMaterial({ color: 0xdce4f0, emissive: 0x0a1830, emissiveIntensity: 0.18, shininess: 120, specular: 0x8fb4ff });
     const accent = new THREE.MeshPhongMaterial({ color: 0x5ccbfa, emissive: 0x0e5a82, emissiveIntensity: 0.5, shininess: 90, specular: 0xd6f0ff });
     const bevel = { depth: 0.6, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 8, curveSegments: 64 };
-    // Resting pose: a 3/4 view so the extruded sides catch light and read as 3D.
-    const BASE_X = -0.22;
-    const BASE_Y = 0.2;
+    // Resting pose: a slight 3/4 view so the extruded sides catch light.
+    const BASE_X = -0.2;
+    const BASE_Y = 0.08;
+    // How far the mark may turn toward the cursor (radians) and how strongly
+    // it leans when the cursor is directly over it.
+    const YAW_MAX = 0.62;
+    const PITCH_MAX = 0.34;
+    const HOVER_BOOST = 1.35;
 
     // "C": an open ring (outer arc, then inner arc back)
     const cShape = new THREE.Shape();
@@ -112,14 +117,20 @@ scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
 
     const target = { x: 0, y: 0 };
     const cur = { x: 0, y: 0 };
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    // "Look at" the cursor: measure from the mark's own centre (not the
+    // viewport's), so a cursor on the far left turns the mark left, and one
+    // hovering the mark itself gets a stronger, snappier lean.
     const onMove = (e) => {
       const rect = cv.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
       const hovering = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-      const relX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      const relY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      // Bounded lean: strong while hovered, gentle elsewhere; never edge-on.
-      target.x = hovering ? relX * 0.6 : (e.clientX / window.innerWidth - 0.5) * 0.45;
-      target.y = hovering ? relY * 0.45 : (e.clientY / window.innerHeight - 0.5) * 0.3;
+      const nx = clamp((e.clientX - cx) / (window.innerWidth * 0.55), -1, 1);
+      const ny = clamp((e.clientY - cy) / (window.innerHeight * 0.55), -1, 1);
+      const boost = hovering ? HOVER_BOOST : 1;
+      target.x = clamp(nx * YAW_MAX * boost, -YAW_MAX, YAW_MAX);
+      target.y = clamp(ny * PITCH_MAX * boost, -PITCH_MAX, PITCH_MAX);
     };
 
     const clock = new THREE.Clock();
@@ -135,8 +146,8 @@ scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x0a0f1a, 1.6));
       const t = clock.getElapsedTime();
       cur.x += (target.x - cur.x) * 0.1;
       cur.y += (target.y - cur.y) * 0.1;
-      wordmark.rotation.y = BASE_Y + Math.sin(t * 0.35) * 0.22 + cur.x * 0.9;
-      wordmark.rotation.x = BASE_X + cur.y * 0.45 + Math.sin(t * 0.5) * 0.04;
+      wordmark.rotation.y = BASE_Y + Math.sin(t * 0.35) * 0.16 + cur.x;
+      wordmark.rotation.x = BASE_X + cur.y + Math.sin(t * 0.5) * 0.04;
       root.position.y = Math.sin(t * 0.7) * 0.07;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

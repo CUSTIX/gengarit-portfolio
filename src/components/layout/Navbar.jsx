@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import { BRAND, NAV_LINKS } from "../../constants";
+import { BRAND, NAV_LINKS, SOCIAL_LINKS } from "../../constants";
+import { useOpenPalette } from "../../context/palette";
 import { LogoMark } from "../ui/Logo";
 import { Magnetic } from "../ui/Magnetic";
 import { EASE_OUT_EXPO } from "../../utils/motion";
@@ -38,6 +39,7 @@ const NavLink = ({ id, name, active, onClick, className, underline = true }) => 
 export const Navbar = ({ activeSection }) => {
   const [open, setOpen] = useState(false);
   const { scrollYProgress } = useScroll();
+  const openPalette = useOpenPalette();
 
   // Close the mobile panel on Escape and when the viewport grows past md.
   useEffect(() => {
@@ -80,6 +82,16 @@ export const Navbar = ({ activeSection }) => {
             {NAV_LINKS.map((link) => (
               <NavLink key={link.id} {...link} active={activeSection === link.id} />
             ))}
+            <button
+              type="button"
+              onClick={openPalette}
+              aria-label="Open command palette"
+              title="Search (Ctrl/⌘ K)"
+              className="group/kbd flex items-center gap-2 rounded-full border border-slate-400/14 px-3 py-[7px] text-[10px] tracking-[0.12em] text-dim transition-[border-color,color,background-color] duration-300 hover:border-accent-mid/40 hover:bg-accent-deep/10 hover:text-slate-200"
+            >
+              <i className="ri-search-line text-[12px] transition-transform duration-400 ease-out-expo group-hover/kbd:scale-110" aria-hidden="true" />
+              <kbd className="font-mono">⌘K</kbd>
+            </button>
             <Magnetic
               href="#contact"
               className={cx(
@@ -159,16 +171,45 @@ export const Navbar = ({ activeSection }) => {
                   />
                 </motion.div>
               ))}
-              <motion.a
-                href="#contact"
-                onClick={close}
+              <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 + NAV_LINKS.length * 0.05, duration: 0.4, ease: EASE_OUT_EXPO }}
-                className="mt-2 inline-flex w-fit rounded-full border border-accent-mid/35 bg-accent-deep/12 px-5 py-[11px] text-fg"
+                className="mt-2 flex flex-wrap items-center gap-3"
               >
-                CONTACT
-              </motion.a>
+                <a href="#contact" onClick={close} className="inline-flex rounded-full border border-accent-mid/35 bg-accent-deep/12 px-5 py-[11px] text-fg transition-colors hover:bg-accent-deep/24">
+                  CONTACT
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    close();
+                    openPalette();
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-400/16 px-4 py-[11px] text-[11px] text-slate-300 transition-colors hover:border-accent-mid/40 hover:text-white"
+                >
+                  <i className="ri-search-line" aria-hidden="true" /> SEARCH
+                </button>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 + NAV_LINKS.length * 0.05, duration: 0.4 }}
+                className="mt-4 flex items-center gap-2 border-t border-slate-400/10 pt-4"
+              >
+                {SOCIAL_LINKS.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={s.name}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-400/14 text-slate-400 transition-[border-color,color,background-color] duration-300 hover:border-accent-mid/50 hover:bg-accent-deep/12 hover:text-accent-soft"
+                  >
+                    <i className={`${s.icon} text-[17px]`} aria-hidden="true" />
+                  </a>
+                ))}
+              </motion.div>
             </div>
           </motion.div>
         )}

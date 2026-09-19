@@ -107,8 +107,8 @@ const CardSwap = ({ images, logo, title }) => {
         />
       ))}
 
-      <div className="absolute left-5 top-5 z-[5] flex h-11 w-11 items-center justify-center rounded-xl border border-slate-400/20 bg-[#05070a] p-[7px]">
-        <img src={logo} alt={`${title} logo`} className="h-full w-full object-contain" />
+      <div className="group/logo absolute left-5 top-5 z-[5] flex h-11 w-11 items-center justify-center rounded-xl border border-slate-400/20 bg-[#05070a] p-[7px] transition-[border-color,box-shadow,transform] duration-400 ease-out-expo hover:scale-105 hover:border-accent-mid/50 hover:shadow-[0_0_18px_rgba(56,189,248,0.35)]">
+        <img src={logo} alt={`${title} logo`} className="h-full w-full object-contain transition-transform duration-[6s] ease-linear group-hover/logo:rotate-[360deg]" />
       </div>
 
       <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(11,15,24,0.5) 0%, rgba(11,15,24,0.06) 40%, transparent 100%)" }} />

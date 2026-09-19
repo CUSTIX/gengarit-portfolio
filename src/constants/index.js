@@ -100,7 +100,6 @@ export const PROJECTS = [
     id: 4,
     title: "SENTINELS",
     subtitle: "2nd Best Thesis // RPG System",
-    badge: "AWARDED",
     attention: true,
     description:
       "A massive year-and-a-half development cycle. Awarded 2nd Best Thesis, this cybersecurity-focused educational platform features interactive gameplay, a complex multi-role system, and a secure backend dashboard.",
@@ -219,33 +218,43 @@ export const FAQ_RESPONSES = [
     response: "Hey — ask me anything about John's projects, stack, or experience.",
   },
   {
+    keywords: ["open to work", "open for work", "available", "availability", "hire", "hiring", "freelance", "contact", "email", "reach", "message"],
+    response:
+      "Yes — John is currently a Software Engineer at a US-based company and still takes on project inquiries, system audits, and collaborations. Use the contact form at the bottom of the page and he'll reply personally, usually within 24 hours.",
+  },
+  {
     keywords: ["prosupport", "squad", "marketplace", "virtual assistant"],
     response:
       "ProSupport Squad is a U.S.-based virtual-assistant marketplace John engineered on Laravel and Blade: verified profiles, hiring flow, a live agent dashboard with time tracking, and Stripe/Twilio/Wise integrations, deployed on DigitalOcean behind Cloudflare.",
   },
   {
-    keywords: ["who", "about", "custix", "john", "yourself"],
+    keywords: ["sentinels", "thesis", "rpg", "cybersecurity"],
+    response:
+      "SENTINELS is a cybersecurity-focused educational RPG built over a year and a half with React, Django, and PostgreSQL: interactive gameplay, a multi-role system, and a secure backend dashboard. It won 2nd Best Thesis among 50+ entries.",
+  },
+  {
+    keywords: ["flood", "dhsud", "elupdd", "hoa", "geospatial", "government"],
+    response:
+      "Two DHSUD systems: HOA CDD, a registry that digitized 500+ housing-association records with an offline-first server architecture, and ELUPDD, a geospatial compliance dashboard with AI analytics. Plus the Bacolod City Flood Map & Alert System, which delivers real-time alerts to 10,000+ residents.",
+  },
+  {
+    keywords: ["who", "about", "custix", "john", "yourself", "background"],
     response:
       "John Eric G. Bayer (CUSTIX) is a Full-Stack Software Engineer from Bacolod City, Philippines. A BSCS graduate of STI West Negros University, he currently works as a Software Engineer at a US-based company and specializes in resilient backend architectures paired with polished frontend interfaces.",
   },
   {
-    keywords: ["skill", "technology", "tech", "stack", "programming", "language", "framework"],
+    keywords: ["skill", "technology", "tech", "stack", "programming", "language", "framework", "strongest", "best at"],
     response:
       "John builds with React, Vue, Node.js, and Tailwind on the front, and Python (Django), Laravel/Blade, PostgreSQL, Java, and C# on the back. Deepest strengths: React and Django (9/10), Node.js and Postgres (8/10).",
   },
   {
-    keywords: ["project", "work", "built", "portfolio", "flood", "dhsud", "sentinels"],
-    response:
-      "Highlights: ProSupport Squad (the featured case study), the Bacolod City Flood Map & Alert System, two DHSUD government systems (HOA CDD registry and the ELUPDD geospatial dashboard), and SENTINELS, an awarded 2nd Best Thesis. Open the Project archive rows to see each one.",
-  },
-  {
-    keywords: ["education", "school", "degree", "university", "thesis", "award"],
+    keywords: ["education", "school", "degree", "university", "award", "graduate"],
     response:
       "BS Computer Science, STI West Negros University (2022-2026). Outstanding Freshman 2022-2023, 2nd Best Thesis for SENTINELS, plus Google DevFest and a Machine Learning workshop.",
   },
   {
-    keywords: ["contact", "email", "hire", "reach", "message", "available"],
+    keywords: ["project", "work", "built", "portfolio", "case study"],
     response:
-      "Use the contact form at the bottom of the page and John will reply personally, usually within 24 hours. You can also reach him on GitHub, Facebook, or Instagram.",
+      "Highlights: ProSupport Squad (the featured case study), the Bacolod City Flood Map & Alert System, two DHSUD government systems (HOA CDD and ELUPDD), and SENTINELS, an awarded 2nd Best Thesis. Open the Project archive rows to see each one.",
   },
 ];

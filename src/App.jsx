@@ -108,7 +108,7 @@ function App() {
 
   const [chatOpen, setChatOpen] = useState(false);
   const closeChat = useCallback(() => setChatOpen(false), []);
-  const { messages, loading, sendMessage } = useChatbot();
+  const { messages, loading, sendMessage, reset, questionsLeft } = useChatbot();
 
   return (
     <MotionConfig reducedMotion="user">
@@ -139,7 +139,15 @@ function App() {
             <CommandPalette open={paletteOpen} onClose={closePalette} />
 
             <div className="fixed bottom-5 right-5 z-[95] flex flex-col items-end gap-[14px] sm:bottom-7 sm:right-7">
-              <ChatbotModal open={chatOpen} onClose={closeChat} onSend={sendMessage} messages={messages} loading={loading} />
+              <ChatbotModal
+                open={chatOpen}
+                onClose={closeChat}
+                onSend={sendMessage}
+                onReset={reset}
+                messages={messages}
+                loading={loading}
+                questionsLeft={questionsLeft}
+              />
               <ChatbotButton onClick={() => setChatOpen((v) => !v)} open={chatOpen} />
             </div>
           </div>

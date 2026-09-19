@@ -115,7 +115,7 @@ export const Contact = () => {
         <div>
           <h3 className="m-0 text-[27px] font-bold leading-[1.24] tracking-[-0.028em] text-fg-bright text-balance">{CONTACT.title}</h3>
           <p className="m-0 mt-5 text-[15.5px] leading-[1.74] text-muted text-pretty">{CONTACT.blurb}</p>
-          <div className="mt-[30px] flex items-center gap-[11px] text-[13.5px] text-accent-soft">
+          <div className="mt-[30px] inline-flex items-center gap-[11px] rounded-full border border-accent/20 bg-accent-deep/10 px-4 py-2 text-[13px] text-accent-soft transition-[border-color,box-shadow] duration-400 hover:border-accent/45 hover:shadow-[0_0_0_4px_rgba(37,99,235,0.08)]">
             <span className="h-[7px] w-[7px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_10px_#38bdf8]" />
             {CONTACT.replyNote}
           </div>
