@@ -38,10 +38,7 @@ export const DEPLOYED_FOR = [
   "LARAVEL · DJANGO · REACT · VUE",
 ];
 
-export const HERO_STATS = [
-  { value: 4, suffix: "", label: "MAJOR SYSTEMS" },
-  { value: 12, suffix: "+", label: "TECHNOLOGIES" },
-];
+// HERO_STATS is defined after PROJECTS (it counts them).
 
 // Case study shown in "Engineered works".
 export const FEATURED_PROJECT = {
@@ -122,6 +119,30 @@ export const PROJECTS = [
   },
 ];
 
+// systems = archive entries + the featured case study
+export const HERO_STATS = [
+  { value: PROJECTS.length + 1, suffix: "", label: "MAJOR SYSTEMS" },
+  { value: 12, suffix: "+", label: "TECHNOLOGIES" },
+];
+
+// Short quotes from people the systems were built for.
+export const TESTIMONIALS = [
+  {
+    quote:
+      "John's ability to engineer complex geospatial dashboards from scratch was instrumental in our regional LGU monitoring efforts. A truly high-performance engineer.",
+    author: "Regional Director",
+    org: "DHSUD Negros Island Region",
+    project: "ELUPDD",
+  },
+  {
+    quote:
+      "The registry system deployed by John streamlined our manual workflows by over 60%. His focus on offline-first architecture was exactly what our regional offices needed.",
+    author: "Information Technology Officer",
+    org: "DHSUD",
+    project: "HOA CDD",
+  },
+];
+
 export const ABOUT_DATA = {
   eyebrow: "ABOUT",
   title: "The full-stack engineer",
@@ -159,6 +180,9 @@ export const FRAMEWORKS = [
   { name: "Vue", icon: "/icons/vuejs.svg" },
   { name: "React", icon: "/icons/react.svg" },
 ];
+
+// Services and tools used across the shipped systems (text chips, no logos).
+export const TOOLS = ["PostgreSQL", "Stripe", "Twilio", "Wise", "DigitalOcean", "Cloudflare", "Leaflet", "Open-Meteo API", "Linux", "Git"];
 
 export const PROFICIENCY = [
   { name: "REACT", level: 9 },

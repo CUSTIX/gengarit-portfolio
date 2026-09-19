@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView, useReducedMotion } from "framer-motion";
-import { FRAMEWORKS, LANGUAGES, PROFICIENCY } from "../../constants";
+import { FRAMEWORKS, LANGUAGES, PROFICIENCY, TOOLS } from "../../constants";
 import { useIntroReady } from "../../context/intro";
 import { Parallax } from "../ui/Parallax";
 import { RevealOnScroll } from "../ui/RevealOnScroll";
@@ -119,6 +119,16 @@ export const Stack = () => (
         <div className="mt-10">
           <TileGrid label="FRAMEWORKS" items={FRAMEWORKS} delay={0.08} />
         </div>
+        <RevealOnScroll delay={0.12} className="cx-label mt-10 text-dim">
+          TOOLS &amp; SERVICES
+        </RevealOnScroll>
+        <RevealOnScroll as="ul" delay={0.16} className="m-0 mt-4 flex list-none flex-wrap gap-2 p-0">
+          {TOOLS.map((t) => (
+            <li key={t} className="cx-tag px-[14px] py-2 text-[10.5px] tracking-[0.08em]">
+              {t}
+            </li>
+          ))}
+        </RevealOnScroll>
       </div>
 
       <ProficiencyCard />

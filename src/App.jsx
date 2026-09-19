@@ -16,6 +16,7 @@ import { Home } from "./components/sections/Home";
 import { About } from "./components/sections/About";
 import { Stack } from "./components/sections/Stack";
 import { Projects } from "./components/sections/Projects";
+import { Signals } from "./components/sections/Signals";
 import { Path } from "./components/sections/Path";
 import { Contact } from "./components/sections/Contact";
 import { IntroContext } from "./context/intro";
@@ -139,6 +140,7 @@ function App() {
                 <About />
                 <Stack />
                 <Projects />
+                <Signals />
                 <Path />
                 <Contact />
               </main>

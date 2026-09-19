@@ -7,6 +7,11 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
+  // Node-side files: Vercel functions, build config, scripts.
+  {
+    files: ['api/**/*.js', 'scripts/**/*.{js,cjs}', 'vite.config.js'],
+    languageOptions: { globals: { ...globals.node } },
+  },
   {
     files: ['**/*.{js,jsx}'],
     extends: [

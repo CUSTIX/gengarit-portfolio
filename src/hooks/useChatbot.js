@@ -1,46 +1,53 @@
 import { useState } from "react";
 import { GoogleGenAI } from "@google/genai";
-import {
-  ABOUT_DATA,
-  BRAND,
-  FAQ_RESPONSES,
-  FEATURED_PROJECT,
-  FRAMEWORKS,
-  LANGUAGES,
-  PROFICIENCY,
-  PROJECTS,
-  TIMELINE,
-} from "../constants";
+import { FAQ_RESPONSES } from "../constants";
+import { DEFAULT_MODEL, MAX_OUTPUT_TOKENS, MAX_QUESTIONS, SYSTEM_PROMPT, toGeminiHistory } from "../lib/assistant";
 
-// Questions per page load before the assistant points to the contact form.
-const MAX_QUESTIONS = 12;
 const LIMIT_REPLY = "That's plenty for this session — use the contact form below for anything else.";
-
+const OFFLINE_REPLY = "Couldn't reach the assistant right now — use the contact form below and John will get back to you directly.";
 const DEFAULT_RESPONSE =
   "I can help with questions about John's skills, projects, education, and how to get in touch. Try asking about one of those.";
 
-// SECURITY NOTE: Vite inlines all VITE_* env vars into the client bundle, so
-// this key is publicly visible on the deployed site. For production, proxy
-// the Gemini calls through a serverless function and restrict the key
-// (HTTP referrer + quota limits) in Google Cloud.
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
-const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+// Answer sources, in order:
+//   1. /api/chat  — Vercel function holding the key server-side (production)
+//   2. VITE_GEMINI_API_KEY — direct browser call; the key ships in the bundle,
+//      so only for local development
+//   3. keyword FAQ — always available, no network
+const CLIENT_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const CLIENT_MODEL = import.meta.env.VITE_GEMINI_MODEL || DEFAULT_MODEL;
+const genAI = CLIENT_KEY ? new GoogleGenAI({ apiKey: CLIENT_KEY }) : null;
 
-const SYSTEM_PROMPT = `
-You are the ${BRAND.name} assistant on the portfolio site of ${BRAND.fullName} (brand: ${BRAND.name}), a ${BRAND.role} from ${BRAND.location}.
-Answer questions from visitors and recruiters about John using ONLY the data below. Keep answers short (2-4 sentences), friendly, and specific; plain sentences, no headings, no emoji.
-If asked something unrelated to John or his work, or not covered below, say so and redirect politely to the contact form at the bottom of the page.
+// Remember for the session when the proxy isn't deployed (404/503) so we
+// don't pay a failed request per message.
+let proxyAvailable = true;
 
-ABOUT: ${JSON.stringify(ABOUT_DATA)}
-LANGUAGES: ${JSON.stringify(LANGUAGES.map((l) => l.name))}
-FRAMEWORKS: ${JSON.stringify(FRAMEWORKS.map((f) => f.name))}
-PROFICIENCY (1-10): ${JSON.stringify(PROFICIENCY)}
-FEATURED_CASE_STUDY: ${JSON.stringify({ ...FEATURED_PROJECT, gallery: undefined, logo: undefined })}
-PROJECT_ARCHIVE: ${JSON.stringify(PROJECTS.map((p) => ({ ...p, image: undefined })))}
-EXPERIENCE_AND_EDUCATION: ${JSON.stringify(TIMELINE)}
-LINKS: GitHub ${BRAND.github}
-`;
+const askProxy = async (messages, text) => {
+  const r = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, text }),
+  });
+  // Not deployed (404/503/405) or a static host answering with index.html
+  // for unknown routes (dev server / preview): treat as unavailable.
+  const isJson = (r.headers.get("content-type") || "").includes("application/json");
+  if (r.status === 404 || r.status === 503 || r.status === 405 || !isJson) {
+    proxyAvailable = false;
+    return null;
+  }
+  if (!r.ok) throw new Error(`proxy ${r.status}`);
+  const data = await r.json();
+  return typeof data.reply === "string" && data.reply.trim() ? data.reply.trim() : null;
+};
+
+const askBrowser = async (messages, text) => {
+  const chat = genAI.chats.create({
+    model: CLIENT_MODEL,
+    config: { systemInstruction: SYSTEM_PROMPT, maxOutputTokens: MAX_OUTPUT_TOKENS },
+    history: toGeminiHistory(messages),
+  });
+  const result = await chat.sendMessage({ message: text });
+  return result.text?.trim() || null;
+};
 
 const keywordReply = (text) => {
   const lower = text.toLowerCase();
@@ -58,38 +65,26 @@ export const useChatbot = () => {
   const reset = () => setMessages([]);
 
   const sendMessage = async (text) => {
+    const history = messages;
     setMessages((prev) => [...prev, msg("user", text)]);
     if (asked >= MAX_QUESTIONS) {
       setMessages((prev) => [...prev, msg("bot", LIMIT_REPLY)]);
       return;
     }
     setLoading(true);
-
     try {
-      if (genAI) {
-        const chat = genAI.chats.create({
-          model: GEMINI_MODEL,
-          config: { systemInstruction: SYSTEM_PROMPT, maxOutputTokens: 300 },
-          history: messages.map((m) => ({
-            role: m.role === "user" ? "user" : "model",
-            parts: [{ text: m.content }],
-          })),
-        });
-        const result = await chat.sendMessage({ message: text });
-        const reply = result.text?.trim();
-        if (!reply) throw new Error("empty reply");
-        setMessages((prev) => [...prev, msg("bot", reply)]);
-      } else {
-        // No API key configured: answer from the keyword FAQ instead.
-        await new Promise((r) => setTimeout(r, 600));
-        setMessages((prev) => [...prev, msg("bot", keywordReply(text))]);
+      let reply = null;
+      if (proxyAvailable) reply = await askProxy(history, text);
+      if (!reply && genAI) reply = await askBrowser(history, text);
+      if (!reply) {
+        // No model available: answer from the keyword FAQ after a short beat.
+        await new Promise((r) => setTimeout(r, 500));
+        reply = keywordReply(text);
       }
+      setMessages((prev) => [...prev, msg("bot", reply)]);
     } catch (error) {
       console.error("Assistant error:", error);
-      setMessages((prev) => [
-        ...prev,
-        msg("bot", "Couldn't reach the assistant right now — use the contact form below and John will get back to you directly."),
-      ]);
+      setMessages((prev) => [...prev, msg("bot", OFFLINE_REPLY)]);
     } finally {
       setLoading(false);
     }
