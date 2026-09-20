@@ -12,9 +12,9 @@ const TileGrid = ({ label, items, delay = 0 }) => (
     <RevealOnScroll delay={delay} className="cx-label text-dim">
       {label}
     </RevealOnScroll>
-    <RevealOnScroll as="ul" delay={delay + 0.05} className="m-0 mt-5 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6">
+    <RevealOnScroll as="ul" delay={delay + 0.05} className="m-0 mt-4 grid list-none grid-cols-3 gap-2 p-0 sm:mt-5 sm:gap-3 lg:grid-cols-6">
       {items.map((item) => (
-        <li key={item.name} className="cx-lift px-2 pb-4 pt-5">
+        <li key={item.name} className="cx-lift px-1 pb-3 pt-4 sm:px-2 sm:pb-4 sm:pt-5">
           <img src={item.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />
           <div className="cx-lift-label mt-3 font-mono text-[9.5px]">{item.name}</div>
         </li>
@@ -91,7 +91,7 @@ const ProficiencyCard = () => {
     <RevealOnScroll delay={0.12}>
       <div
         ref={ref}
-        className="rounded-[20px] border border-slate-400/13 bg-panel/86 px-[30px] pb-[34px] pt-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/30 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.7)]"
+        className="rounded-[20px] border border-slate-400/13 bg-panel/86 px-5 pb-6 pt-5 sm:px-[30px] sm:pb-[34px] sm:pt-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/30 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.7)]"
       >
         <div className="cx-label text-dim">TECHNICAL PROFICIENCY</div>
         <ul className="m-0 mt-[26px] grid list-none gap-[22px] p-0">
@@ -105,21 +105,21 @@ const ProficiencyCard = () => {
 };
 
 export const Stack = () => (
-  <section id="stack" aria-labelledby="stack-heading" className="cx-container pb-[110px] pt-5">
+  <section id="stack" aria-labelledby="stack-heading" className="cx-container pb-16 pt-3 md:pb-[110px] md:pt-5">
     <RevealOnScroll className="cx-section-head">
       <Parallax as="h2" speed={0.045} id="stack-heading" className="cx-h2">
         Stack
       </Parallax>
-      <Scramble text="LANGUAGES / FRAMEWORKS / DEPTH" className="hidden font-mono text-[10px] tracking-[0.24em] text-[#5b677a] sm:inline" />
+      <Scramble text="LANGUAGES / FRAMEWORKS / DEPTH" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
     </RevealOnScroll>
 
-    <div className="mt-[46px] grid items-start gap-12 lg:grid-cols-[1.25fr_0.75fr] lg:gap-14">
+    <div className="mt-8 grid items-start gap-9 md:mt-[46px] md:gap-12 lg:grid-cols-[1.25fr_0.75fr] lg:gap-14">
       <div>
         <TileGrid label="LANGUAGES" items={LANGUAGES} />
-        <div className="mt-10">
+        <div className="mt-7 md:mt-10">
           <TileGrid label="FRAMEWORKS" items={FRAMEWORKS} delay={0.08} />
         </div>
-        <RevealOnScroll delay={0.12} className="cx-label mt-10 text-dim">
+        <RevealOnScroll delay={0.12} className="cx-label mt-7 text-dim md:mt-10">
           TOOLS &amp; SERVICES
         </RevealOnScroll>
         <RevealOnScroll as="ul" delay={0.16} className="m-0 mt-4 flex list-none flex-wrap gap-2 p-0">

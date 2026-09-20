@@ -137,7 +137,7 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="cx-container pb-[84px] pt-5 md:pb-[120px]">
+    <section id="contact" aria-labelledby="contact-heading" className="cx-container pb-16 pt-3 md:pb-[120px] md:pt-5">
       <RevealOnScroll className="cx-section-head">
         <h2 id="contact-heading" className="cx-h2">
           {CONTACT.heading}
@@ -145,15 +145,15 @@ export const Contact = () => {
         <Scramble text={CONTACT.meta} className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
-      <RevealOnScroll delay={0.08} className="mt-12 grid items-start gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
+      <RevealOnScroll delay={0.08} className="mt-8 grid items-start gap-8 md:mt-12 md:gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
         <div>
-          <h3 className="m-0 text-[27px] font-bold leading-[1.24] tracking-[-0.028em] text-fg-bright text-balance">{CONTACT.title}</h3>
-          <p className="m-0 mt-5 text-[15.5px] leading-[1.74] text-muted text-pretty">{CONTACT.blurb}</p>
-          <div className="mt-[30px] inline-flex items-center gap-[11px] rounded-full border border-accent/20 bg-accent-deep/10 px-4 py-2 text-[13px] text-accent-soft transition-[border-color,box-shadow] duration-400 hover:border-accent/45 hover:shadow-[0_0_0_4px_rgba(37,99,235,0.08)]">
+          <h3 className="m-0 text-[24px] font-bold leading-[1.24] tracking-[-0.028em] text-fg-bright text-balance md:text-[27px]">{CONTACT.title}</h3>
+          <p className="m-0 mt-3 text-[15px] leading-[1.7] text-muted text-pretty md:mt-5 md:text-[15.5px] md:leading-[1.74]">{CONTACT.blurb}</p>
+          <div className="mt-5 md:mt-[30px] inline-flex items-center gap-[11px] rounded-full border border-accent/20 bg-accent-deep/10 px-4 py-2 text-[13px] text-accent-soft transition-[border-color,box-shadow] duration-400 hover:border-accent/45 hover:shadow-[0_0_0_4px_rgba(37,99,235,0.08)]">
             <span className="h-[7px] w-[7px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_10px_#38bdf8]" />
             {CONTACT.replyNote}
           </div>
-          <div className="mt-9 grid">
+          <div className="mt-6 grid md:mt-9">
             <EmailRow />
             {SOCIAL_LINKS.map((link) => (
               <LinkRow key={link.name} href={link.url} icon={link.icon} target="_blank" rel="noreferrer">
@@ -203,13 +203,13 @@ export const Contact = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          <form ref={formRef} onSubmit={handleSubmit} className="relative grid gap-[30px] p-[26px_20px_28px] sm:p-[30px_24px_32px] lg:p-[42px_40px_40px]">
+          <form ref={formRef} onSubmit={handleSubmit} className="relative grid gap-6 p-[22px_18px_24px] sm:p-[30px_24px_32px] md:gap-[30px] lg:p-[42px_40px_40px]">
             {/* honeypot (off-screen, ignored by assistive tech) */}
             <div className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden" aria-hidden="true">
               <label htmlFor="cx-company">Company</label>
               <input id="cx-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
             </div>
-            <div className="grid gap-[30px] md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 md:gap-[30px]">
               <Field id="cx-name" label="YOUR NAME" type="text" name="from_name" required autoComplete="name" placeholder="Jane Mercado" value={form.from_name} onChange={onChange} />
               <Field id="cx-email" label="EMAIL" type="email" name="from_email" required autoComplete="email" placeholder="jane@company.com" value={form.from_email} onChange={onChange} />
             </div>

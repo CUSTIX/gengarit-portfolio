@@ -129,6 +129,20 @@ const check = (ok, label) => {
     await mp.click('button[aria-controls="mobile-nav"]');
     await mp.waitForTimeout(400);
     check(await mp.$("#mobile-nav"), "mobile menu opens");
+    await mp.keyboard.press("Escape");
+    await mp.waitForTimeout(300);
+
+    // archive: no side panel on phones; the detail expands under the tapped row
+    check(!(await mp.$("#archive-panel")), "phone archive has no empty side panel");
+    const prow = mp.locator("#archive-row-2");
+    await prow.scrollIntoViewIfNeeded();
+    await prow.tap();
+    await mp.waitForTimeout(1000);
+    const inline = await mp.evaluate(() => {
+      const d = document.getElementById("archive-detail-2");
+      return d ? { h: Math.round(d.getBoundingClientRect().height), ok: /Offline Server Architecture/.test(d.textContent) } : null;
+    });
+    check(inline && inline.ok && inline.h > 300, `phone archive row expands inline (${inline ? inline.h : 0}px)`);
     check(merrors.length === 0, `no page errors on phone${merrors.length ? `: ${merrors[0]}` : ""}`);
 
     await browser.close();

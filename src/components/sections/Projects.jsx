@@ -6,7 +6,8 @@ import { RevealOnScroll } from "../ui/RevealOnScroll";
 import { Scramble } from "../ui/Scramble";
 import { cx } from "../../utils/cx";
 import { EASE_OUT_EXPO } from "../../utils/motion";
-import { scrollWindowTo } from "../../utils/scroll";
+import { NAV_HEIGHT, scrollWindowTo } from "../../utils/scroll";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { Icon } from "../ui/Icon";
 
 const pad3 = (n) => String(n).padStart(3, "0");
@@ -153,7 +154,7 @@ const CaseStudy = ({ study, url, title }) => {
   const [open, setOpen] = useState(false);
   if (!study && !url) return null;
   return (
-    <div className="mt-7 flex flex-wrap items-center gap-3">
+    <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-7">
       {study && (
         <button
           type="button"
@@ -209,28 +210,28 @@ const CaseStudy = ({ study, url, title }) => {
 };
 
 const FeaturedProject = ({ project }) => (
-  <div className="relative mt-[46px]">
+  <div className="relative mt-7 md:mt-[46px]">
     {/* breathing halo behind the card */}
     <div
       aria-hidden="true"
       className="pointer-events-none absolute -inset-[3px] z-0 animate-cx-glow-halo rounded-[29px] blur-[20px]"
       style={{ background: "linear-gradient(120deg, rgba(37,99,235,0.4), rgba(56,189,248,0.16), rgba(37,99,235,0.4))" }}
     />
-    <RevealOnScroll className="relative z-[1] overflow-hidden rounded-[26px] border border-slate-400/14 bg-panel/60 backdrop-blur-[14px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/42 hover:shadow-[0_30px_90px_-40px_rgba(37,99,235,0.6)]">
+    <RevealOnScroll className="relative z-[1] overflow-hidden rounded-[20px] border md:rounded-[26px] border-slate-400/14 bg-panel/60 backdrop-blur-[14px] transition-[border-color,box-shadow] duration-500 hover:border-accent-mid/42 hover:shadow-[0_30px_90px_-40px_rgba(37,99,235,0.6)]">
       <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
-        <div className="p-7 sm:p-10 lg:px-12 lg:pb-12 lg:pt-[52px]">
+        <div className="p-5 sm:p-10 lg:px-12 lg:pb-12 lg:pt-[52px]">
           <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.22em] text-accent">
             <span className="h-px w-[22px] bg-accent" />
             FEATURED
           </div>
-          <h3 className="m-0 mt-6 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-fg-bright text-balance sm:text-4xl">{project.title}</h3>
+          <h3 className="m-0 mt-4 text-[25px] font-bold leading-[1.12] tracking-[-0.03em] text-fg-bright text-balance sm:text-4xl md:mt-6">{project.title}</h3>
           <div className="mt-3 text-sm text-accent-mid">{project.subtitle}</div>
-          <p className="m-0 mt-6 text-[15px] leading-[1.75] text-[#97a2b5] text-pretty">{project.description}</p>
-          <FeatureList items={project.features} className="mt-[30px] gap-3 [&>li]:text-[13px]" />
-          <div className="mt-[30px]">
+          <p className="m-0 mt-4 text-[14.5px] leading-[1.72] text-[#97a2b5] text-pretty md:mt-6 md:text-[15px] md:leading-[1.75]">{project.description}</p>
+          <FeatureList items={project.features} className="mt-6 gap-[10px] [&>li]:text-[13px] md:mt-[30px] md:gap-3" />
+          <div className="mt-6 md:mt-[30px]">
             <ImpactBox text={project.impact} labelled={false} />
           </div>
-          <TagList tags={project.tags} className="mt-7" />
+          <TagList tags={project.tags} className="mt-5 md:mt-7" />
           <CaseStudy study={project.caseStudy} url={project.url} title={project.title} />
         </div>
         <CardSwap images={project.gallery} logo={project.logo} title={project.title} />
@@ -258,23 +259,30 @@ const Bracket = ({ className }) => (
   <span aria-hidden="true" className={cx("pointer-events-none absolute h-[14px] w-[14px] border-accent-soft/70", className)} />
 );
 
-/** Detail body shown in the shared archive panel. */
-const ProjectDetail = ({ project }) => (
-  <motion.div variants={detailStagger} initial="hidden" animate="visible" className="relative p-5 sm:p-7">
-    {/* header strip */}
-    <motion.div variants={detailItem} className="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[9.5px] tracking-[0.2em]">
-      <span className="text-accent-soft">[{pad3(project.id)}]</span>
-      <span className="text-dim">{project.subtitle.toUpperCase()}</span>
-      {project.badge && (
-        <span className="ml-auto rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-[10px] py-[5px] text-[9px] tracking-[0.14em] text-white">{project.badge}</span>
-      )}
-    </motion.div>
-    <motion.h3 variants={detailItem} className="m-0 mt-2 text-[21px] font-bold leading-tight tracking-[-0.022em] text-fg-bright text-balance">
-      {project.title}
-    </motion.h3>
+/**
+ * Detail body. In the desktop panel it carries its own header; `compact`
+ * (phones/tablets, expanded under the row) skips the header the row already shows.
+ */
+const ProjectDetail = ({ project, compact = false }) => (
+  <motion.div variants={detailStagger} initial="hidden" animate="visible" className={cx("relative", compact ? "p-4 pt-[18px]" : "p-5 sm:p-7")}>
+    {!compact && (
+      <>
+        {/* header strip */}
+        <motion.div variants={detailItem} className="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[9.5px] tracking-[0.2em]">
+          <span className="text-accent-soft">[{pad3(project.id)}]</span>
+          <span className="text-dim">{project.subtitle.toUpperCase()}</span>
+          {project.badge && (
+            <span className="ml-auto rounded-full bg-[linear-gradient(120deg,#2563eb,#38bdf8)] px-[10px] py-[5px] text-[9px] tracking-[0.14em] text-white">{project.badge}</span>
+          )}
+        </motion.div>
+        <motion.h3 variants={detailItem} className="m-0 mt-2 text-[21px] font-bold leading-tight tracking-[-0.022em] text-fg-bright text-balance">
+          {project.title}
+        </motion.h3>
+      </>
+    )}
 
     {/* framed screenshot with corner brackets and a one-time scan sweep */}
-    <motion.div variants={detailShot} className="group/shot relative mt-5 aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14 bg-ink">
+    <motion.div variants={detailShot} className={cx("group/shot relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-400/14 bg-ink", !compact && "mt-5")}>
       <img
         src={project.image}
         alt={`${project.title} interface`}
@@ -300,10 +308,10 @@ const ProjectDetail = ({ project }) => (
       </span>
     </motion.div>
 
-    <motion.p variants={detailItem} className="m-0 mt-5 text-[14.5px] leading-[1.74] text-muted text-pretty">
+    <motion.p variants={detailItem} className="m-0 mt-4 text-[14px] leading-[1.7] text-muted text-pretty sm:mt-5 sm:text-[14.5px] sm:leading-[1.74]">
       {project.description}
     </motion.p>
-    <motion.ul variants={detailStagger} className="m-0 mt-[22px] grid list-none gap-[11px] p-0">
+    <motion.ul variants={detailStagger} className="m-0 mt-4 grid list-none gap-[9px] p-0 sm:mt-[22px] sm:gap-[11px]">
       {project.features.map((f) => (
         <motion.li key={f} variants={detailItem} className="cx-feature">
           <Icon name="ri-focus-2-line" />
@@ -311,10 +319,10 @@ const ProjectDetail = ({ project }) => (
         </motion.li>
       ))}
     </motion.ul>
-    <motion.div variants={detailItem} className="mt-[22px]">
+    <motion.div variants={detailItem} className="mt-4 sm:mt-[22px]">
       <ImpactBox text={project.impact} />
     </motion.div>
-    <motion.ul variants={detailStagger} className="m-0 mt-5 flex list-none flex-wrap gap-[7px] p-0">
+    <motion.ul variants={detailStagger} className="m-0 mt-4 flex list-none flex-wrap gap-[7px] p-0 sm:mt-5">
       {project.tags.map((t) => (
         <motion.li key={t} variants={detailItem} className="cx-tag">
           {t}
@@ -343,12 +351,13 @@ const ProjectDetail = ({ project }) => (
   </motion.div>
 );
 
-const ArchiveRow = ({ project, open, onToggle }) => (
+const ArchiveRow = ({ project, open, controls, onToggle }) => (
   <button
     type="button"
+    id={`archive-row-${project.id}`}
     onClick={onToggle}
     aria-expanded={open}
-    aria-controls="archive-panel"
+    aria-controls={controls}
     className={cx(
       "group relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-2xl border px-4 py-4 text-left transition-[border-color,background-color,transform] duration-[450ms] ease-out-expo md:gap-5 md:px-6 md:py-5",
       open
@@ -449,36 +458,39 @@ const ArchiveRow = ({ project, open, onToggle }) => (
   </button>
 );
 
+const PANEL_BG = "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))";
+
 const Archive = () => {
   const [openId, setOpenId] = useState(null);
-  const panelRef = useRef(null);
+  // Desktop: rows drive a sticky side panel. Below lg the detail expands
+  // under its own row instead, so no empty panel sits above the list.
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const open = PROJECTS.find((p) => p.id === openId) ?? null;
 
-  // Below lg the panel stacks above the rows, so bring it into view when a
-  // row is opened; on desktop it is sticky and already visible.
+  // Pin the opened row under the nav so its expansion is what scrolls into view.
   useEffect(() => {
-    if (!openId || !panelRef.current || window.matchMedia("(min-width: 1024px)").matches) return;
-    const top = panelRef.current.getBoundingClientRect().top + window.scrollY - 16;
-    scrollWindowTo(top);
-  }, [openId]);
+    if (!openId || desktop) return;
+    const row = document.getElementById(`archive-row-${openId}`);
+    if (!row) return;
+    scrollWindowTo(row.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT - 10);
+  }, [openId, desktop]);
 
   return (
-    <section aria-labelledby="archive-heading" className="cx-container pb-[110px] pt-[46px]">
+    <section aria-labelledby="archive-heading" className="cx-container pb-16 pt-8 md:pb-[110px] md:pt-[46px]">
       <RevealOnScroll className="cx-section-head pb-[22px]">
         <h2 id="archive-heading" className="m-0 font-sans font-bold tracking-[-0.028em] text-fg" style={{ fontSize: "clamp(24px, 2.4vw, 34px)" }}>
           Project archive
         </h2>
-        <Scramble text="TAP A ROW TO EXPAND" className="hidden font-mono text-[10px] tracking-[0.24em] text-[#5b677a] sm:inline" />
+        <Scramble text="TAP A ROW TO EXPAND" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
-      <div className="mt-[30px] flex flex-col items-start gap-[26px] lg:flex-row">
-        {/* shared detail panel: sticky on desktop, above the rows on mobile */}
+      <div className="mt-5 flex flex-col items-start gap-[26px] md:mt-[30px] lg:flex-row">
+        {desktop && (
         <div
-          ref={panelRef}
           id="archive-panel"
           aria-live="polite"
-          className="relative w-full min-h-[420px] shrink-0 overflow-hidden rounded-2xl border border-accent/16 lg:sticky lg:top-[100px] lg:h-[max(640px,calc(100vh_-_130px))] lg:w-[560px] lg:max-w-[42vw]"
-          style={{ background: "linear-gradient(150deg, rgba(37,99,235,0.09), rgba(11,15,24,0.72))" }}
+          className="sticky top-[100px] h-[max(640px,calc(100vh_-_130px))] w-[560px] max-w-[42vw] shrink-0 overflow-hidden rounded-2xl border border-accent/16"
+          style={{ background: PANEL_BG }}
         >
           {/* faint grid + a glow that brightens when a project is open */}
           <div
@@ -508,7 +520,7 @@ const Archive = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.25 } }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="lg:absolute lg:inset-0 lg:overflow-y-auto"
+                className="absolute inset-0 overflow-y-auto"
               >
                 <ProjectDetail project={open} />
               </motion.div>
@@ -532,11 +544,36 @@ const Archive = () => {
             )}
           </AnimatePresence>
         </div>
+        )}
 
-        <div className="flex w-full min-w-0 flex-1 flex-col gap-[14px]">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-[10px] md:gap-[14px]">
           {PROJECTS.map((project, i) => (
             <RevealOnScroll key={project.id} delay={i * 0.06}>
-              <ArchiveRow project={project} open={openId === project.id} onToggle={() => setOpenId((cur) => (cur === project.id ? null : project.id))} />
+              <ArchiveRow
+                project={project}
+                open={openId === project.id}
+                controls={desktop ? "archive-panel" : `archive-detail-${project.id}`}
+                onToggle={() => setOpenId((cur) => (cur === project.id ? null : project.id))}
+              />
+              {!desktop && (
+                <AnimatePresence initial={false}>
+                  {openId === project.id && (
+                    <motion.div
+                      key="detail"
+                      id={`archive-detail-${project.id}`}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ height: { duration: 0.55, ease: EASE_OUT_EXPO }, opacity: { duration: 0.3 } }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-[10px] overflow-hidden rounded-2xl border border-accent/16" style={{ background: PANEL_BG }}>
+                        <ProjectDetail project={project} compact />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
             </RevealOnScroll>
           ))}
         </div>
@@ -547,7 +584,7 @@ const Archive = () => {
 
 export const Projects = () => (
   <>
-    <section id="work" aria-labelledby="work-heading" className="cx-container pb-10 pt-[60px]">
+    <section id="work" aria-labelledby="work-heading" className="cx-container pb-6 pt-10 md:pb-10 md:pt-[60px]">
       <RevealOnScroll className="cx-section-head">
         <Parallax as="h2" speed={0.045} id="work-heading" className="cx-h2">
           Engineered works

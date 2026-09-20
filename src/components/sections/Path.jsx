@@ -16,16 +16,16 @@ const DOT = {
 const KIND = { accent: "ri-briefcase-4-line", deep: "ri-code-s-slash-line", muted: "ri-graduation-cap-line" };
 
 const Step = ({ item, index, last }) => (
-  <RevealOnScroll delay={index * 0.08} className={cx("group/step relative", !last && "pb-7")}>
+  <RevealOnScroll delay={index * 0.08} className={cx("group/step relative", !last && "pb-4 md:pb-7")}>
     <span
       aria-hidden="true"
       className={cx(
-        "absolute -left-10 top-[30px] z-10 h-[11px] w-[11px] rounded-full transition-[box-shadow,background-color,transform] duration-500 ease-out-expo group-hover/step:scale-110",
+        "absolute -left-8 top-[26px] z-10 h-[11px] w-[11px] rounded-full md:-left-10 md:top-[30px] transition-[box-shadow,background-color,transform] duration-500 ease-out-expo group-hover/step:scale-110",
         DOT[item.tone]
       )}
     />
     {/* card lights up on hover; content lifts slightly */}
-    <div className="relative -ml-2 rounded-2xl border border-transparent px-6 py-6 transition-[border-color,background-color,box-shadow,transform] duration-500 ease-out-expo group-hover/step:-translate-y-0.5 group-hover/step:border-slate-400/14 group-hover/step:bg-panel/70 group-hover/step:shadow-[0_24px_60px_-40px_rgba(37,99,235,0.7)]">
+    <div className="relative -ml-2 rounded-2xl border border-transparent px-4 py-4 md:px-6 md:py-6 transition-[border-color,background-color,box-shadow,transform] duration-500 ease-out-expo group-hover/step:-translate-y-0.5 group-hover/step:border-slate-400/14 group-hover/step:bg-panel/70 group-hover/step:shadow-[0_24px_60px_-40px_rgba(37,99,235,0.7)]">
       <div className="flex items-center gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-slate-400/14 bg-panel/80 text-accent-mid transition-[border-color,color,transform] duration-500 ease-out-expo group-hover/step:scale-110 group-hover/step:border-accent-mid/40 group-hover/step:text-accent-soft">
           <Icon name={KIND[item.tone]} className="text-[15px]" />
@@ -39,7 +39,7 @@ const Step = ({ item, index, last }) => (
           {item.period} // {item.org}
         </div>
       </div>
-      <h3 className="m-0 mt-3 flex flex-wrap items-center gap-3 text-[20px] font-bold tracking-[-0.02em] text-fg-bright transition-transform duration-500 ease-out-expo group-hover/step:translate-x-1 sm:text-[23px]">
+      <h3 className="m-0 mt-2 flex flex-wrap items-center gap-3 text-[19px] font-bold tracking-[-0.02em] text-fg-bright transition-transform duration-500 ease-out-expo group-hover/step:translate-x-1 sm:text-[23px] md:mt-3">
         {item.role}
         {item.current && (
           <span className="inline-flex items-center gap-[6px] rounded-full border border-emerald-400/30 bg-emerald-400/10 px-[9px] py-[3px] font-mono text-[8.5px] tracking-[0.2em] text-emerald-300">
@@ -48,9 +48,9 @@ const Step = ({ item, index, last }) => (
           </span>
         )}
       </h3>
-      {item.description && <p className="m-0 mt-3 max-w-[62ch] text-[15px] leading-[1.74] text-[#8e99ad] text-pretty">{item.description}</p>}
+      {item.description && <p className="m-0 mt-2 max-w-[62ch] text-[14.5px] leading-[1.7] text-[#8e99ad] text-pretty md:mt-3 md:text-[15px] md:leading-[1.74]">{item.description}</p>}
       {item.awards && (
-        <ul className="m-0 mt-4 grid list-none gap-[9px] p-0">
+        <ul className="m-0 mt-3 grid list-none gap-2 p-0 md:mt-4 md:gap-[9px]">
           {item.awards.map((award) => (
             <li key={award} className="group/award flex items-center gap-[11px] text-sm text-[#a9b4c6]">
               <Icon name="ri-award-line" className="text-accent-mid transition-transform duration-500 ease-out-expo group-hover/award:-rotate-12 group-hover/award:scale-125" />
@@ -78,7 +78,7 @@ export const Path = () => {
   const scaleY = useTransform(drawn, (v) => (reduced ? 1 : v));
 
   return (
-    <section id="path" aria-labelledby="path-heading" className="cx-container pb-[110px] pt-5">
+    <section id="path" aria-labelledby="path-heading" className="cx-container pb-16 pt-3 md:pb-[110px] md:pt-5">
       <RevealOnScroll className="cx-section-head">
         <Parallax as="h2" speed={0.045} id="path-heading" className="cx-h2">
           Deployments
@@ -86,8 +86,8 @@ export const Path = () => {
         <Scramble text="2022 — PRESENT" className="font-mono text-[10px] tracking-[0.24em] text-[#5b677a]" />
       </RevealOnScroll>
 
-      <div className="mt-[46px] grid items-start gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
-        <ol ref={listRef} className="relative m-0 list-none p-0 pl-[34px]">
+      <div className="mt-8 grid items-start gap-8 md:mt-[46px] md:gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
+        <ol ref={listRef} className="relative m-0 list-none p-0 pl-[26px] md:pl-[34px]">
           <span aria-hidden="true" className="absolute bottom-0 left-0 top-0 w-px bg-slate-400/14" />
           <motion.span
             aria-hidden="true"
@@ -104,7 +104,7 @@ export const Path = () => {
         <RevealOnScroll delay={0.15}>
           <Parallax
             speed={-0.055}
-            className="group/status relative overflow-hidden rounded-[20px] border border-accent/16 p-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent/40 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.8)]"
+            className="group/status relative overflow-hidden rounded-[20px] border border-accent/16 p-6 md:p-[30px] transition-[border-color,box-shadow] duration-500 hover:border-accent/40 hover:shadow-[0_30px_80px_-50px_rgba(37,99,235,0.8)]"
           >
             <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(37,99,235,0.12), rgba(11,15,24,0.7))" }} />
             <div
@@ -116,9 +116,9 @@ export const Path = () => {
                 <span className="h-[6px] w-[6px] animate-cx-pulse rounded-full bg-accent shadow-[0_0_9px_#38bdf8]" />
                 CURRENT STATUS
               </div>
-              <p className="m-0 mt-5 text-[15px] leading-[1.74] text-slate-300 text-pretty">{ABOUT_DATA.status}</p>
+              <p className="m-0 mt-4 text-[14.5px] leading-[1.7] text-slate-300 text-pretty md:mt-5 md:text-[15px] md:leading-[1.74]">{ABOUT_DATA.status}</p>
 
-              <ul className="m-0 mt-6 grid list-none gap-2 p-0">
+              <ul className="m-0 mt-5 grid list-none gap-2 p-0 md:mt-6">
                 {STATUS_ROWS.map((row) => (
                   <li
                     key={row.label}

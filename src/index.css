@@ -275,15 +275,16 @@ body {
 
   /* section header row with the thin divider */
   .cx-section-head {
-    @apply flex items-baseline justify-between gap-6 border-b border-slate-400/12 pb-6;
+    @apply flex flex-wrap items-baseline justify-between gap-x-6 gap-y-[14px] border-b border-slate-400/12 pb-5 sm:pb-6;
   }
+  /* meta line beside the heading; on phones it becomes an eyebrow above it */
   .cx-section-head > span {
-    @apply shrink-0 whitespace-nowrap;
+    @apply shrink-0 whitespace-nowrap max-sm:order-first max-sm:basis-full;
   }
 
   .cx-h2 {
     @apply m-0 font-sans font-bold tracking-[-0.03em] text-fg-bright;
-    font-size: clamp(30px, 3.2vw, 46px);
+    font-size: clamp(28px, 3.2vw, 46px);
   }
 
   /* frosted panel used by cards */
@@ -303,7 +304,7 @@ body {
 
   /* primary CTA: gradient pill with a light sweep on hover */
   .cx-btn-primary {
-    @apply relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-7 py-4 text-[13px] font-semibold tracking-[0.06em] text-white;
+    @apply relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border border-transparent px-[22px] py-[14px] text-[13px] font-semibold tracking-[0.06em] text-white sm:px-7 sm:py-4;
     background: linear-gradient(120deg, #2563eb, #38bdf8);
     box-shadow: 0 14px 40px -12px rgba(37, 99, 235, 0.8);
     transition: box-shadow 0.45s ease, filter 0.45s ease;
@@ -327,7 +328,7 @@ body {
 
   /* secondary CTA: outline pill */
   .cx-btn-ghost {
-    @apply inline-flex items-center justify-center gap-3 rounded-full border border-slate-400/20 px-7 py-4 text-[13px] font-semibold tracking-[0.06em] text-slate-300;
+    @apply inline-flex items-center justify-center gap-3 rounded-full border border-slate-400/20 px-[22px] py-[14px] text-[13px] font-semibold tracking-[0.06em] text-slate-300 sm:px-7 sm:py-4;
     transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
   }
   .cx-btn-ghost:hover {

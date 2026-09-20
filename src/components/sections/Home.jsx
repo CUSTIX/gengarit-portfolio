@@ -72,7 +72,7 @@ export const Home = () => {
     <section
       id="top"
       aria-label="Introduction"
-      className="cx-container relative grid items-center gap-6 pb-[76px] pt-8 md:min-h-[84vh] md:gap-10 md:pb-[120px] md:pt-[108px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-14"
+      className="cx-container relative grid items-center gap-4 pb-14 pt-5 md:min-h-[84vh] md:gap-10 md:pb-[120px] md:pt-[108px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-14"
     >
       <div>
         <RevealOnScroll className="group/pill inline-flex items-center gap-[10px] rounded-full border border-slate-400/16 bg-white/[0.03] px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-slate-400 transition-[border-color,color,box-shadow] duration-400 hover:border-accent-mid/40 hover:text-slate-200 hover:shadow-[0_0_0_4px_rgba(37,99,235,0.08)]">
@@ -81,7 +81,7 @@ export const Home = () => {
         </RevealOnScroll>
 
         {/* Wordmark: an outlined ghost with the solid letters wiping in over it */}
-        <Parallax speed={0.05} className="relative mt-7 inline-block">
+        <Parallax speed={0.05} className="relative mt-5 inline-block md:mt-7">
           <span aria-hidden="true" className={`block font-sans font-extrabold text-transparent ${H1_SIZE}`} style={{ ...H1_STYLE, WebkitTextStroke: "1.5px rgba(125,211,252,0.5)" }}>
             {BRAND.name}
           </span>
@@ -94,21 +94,24 @@ export const Home = () => {
           </h1>
         </Parallax>
 
-        <RevealOnScroll delay={0.12} className="mt-6 flex flex-wrap items-center gap-4">
-          <span className="text-[19px] font-semibold tracking-[-0.01em] text-[#dbe3ef]">{BRAND.fullName}</span>
+        <RevealOnScroll delay={0.12} className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 md:mt-6">
+          <span className="text-[17px] font-semibold tracking-[-0.01em] text-[#dbe3ef] md:text-[19px]">{BRAND.fullName}</span>
           <span className="hidden h-[5px] w-[5px] rounded-full bg-slate-400/40 sm:block" />
-          <span className="font-mono text-[12px] tracking-[0.2em] text-accent-mid">{BRAND.role.toUpperCase()}</span>
+          <span className="font-mono text-[11px] tracking-[0.2em] text-accent-mid md:text-[12px]">{BRAND.role.toUpperCase()}</span>
         </RevealOnScroll>
 
-        <RevealOnScroll as="p" delay={0.18} className="m-0 mt-[26px] max-w-[50ch] text-[17px] leading-[1.72] text-muted text-pretty">
+        <RevealOnScroll as="p" delay={0.18} className="m-0 mt-4 max-w-[50ch] text-[15.5px] leading-[1.7] text-muted text-pretty md:mt-[26px] md:text-[17px] md:leading-[1.72]">
           {BRAND.tagline}
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.24} className="mt-10 flex flex-wrap gap-[14px]">
-          <Magnetic href="#work" className="cx-btn-primary">
-            View engineered works <Icon name="ri-arrow-right-up-line" />
+        <RevealOnScroll delay={0.24} className="mt-7 flex flex-wrap gap-3 md:mt-10 md:gap-[14px]">
+          <Magnetic href="#work" className="cx-btn-primary max-md:min-w-fit max-md:flex-1 max-md:whitespace-nowrap">
+            {/* shorter label on phones so both buttons share one row */}
+            <span className="md:hidden">See the work</span>
+            <span className="hidden md:inline">View engineered works</span>
+            <Icon name="ri-arrow-right-up-line" />
           </Magnetic>
-          <Magnetic href={BRAND.github} target="_blank" rel="noreferrer" className="cx-btn-ghost">
+          <Magnetic href={BRAND.github} target="_blank" rel="noreferrer" className="cx-btn-ghost max-md:flex-1">
             <Icon name="ri-github-fill" className="text-base" /> GitHub
           </Magnetic>
           <button type="button" onClick={openPalette} aria-label="Open command palette" className="cx-btn-kbd hidden md:inline-flex">
@@ -117,14 +120,14 @@ export const Home = () => {
           </button>
         </RevealOnScroll>
 
-        <RevealOnScroll as="dl" delay={0.3} className="mt-[58px] flex flex-wrap gap-x-11 gap-y-6">
+        <RevealOnScroll as="dl" delay={0.3} className="mt-9 grid grid-cols-3 gap-3 md:mt-[58px] md:flex md:flex-wrap md:gap-x-11 md:gap-y-6">
           {stats.map((stat) => (
             <div key={stat.label} className="group/stat flex flex-col">
-              <dt className="order-2 mt-[6px] flex items-center gap-2 font-mono text-[10px] tracking-[0.18em] text-dim transition-colors duration-400 group-hover/stat:text-accent-mid">
+              <dt className="order-2 mt-[6px] flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-dim transition-colors duration-400 group-hover/stat:text-accent-mid md:text-[10px] md:tracking-[0.18em]">
                 {stat.label}
                 {stat.live && <span title="Live from GitHub" className="h-[5px] w-[5px] animate-cx-pulse rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />}
               </dt>
-              <dd className="m-0 font-sans text-[27px] font-bold text-fg-bright">
+              <dd className="m-0 font-sans text-[24px] font-bold text-fg-bright md:text-[27px]">
                 <CountUp value={stat.value} suffix={stat.suffix} />
               </dd>
             </div>
@@ -132,7 +135,7 @@ export const Home = () => {
         </RevealOnScroll>
       </div>
 
-      <Parallax speed={0.05} className="relative order-first -mb-2 h-[230px] sm:h-[360px] lg:order-none lg:mb-0 lg:h-[520px]">
+      <Parallax speed={0.05} className="relative order-first -mb-3 h-[210px] sm:h-[360px] lg:order-none lg:mb-0 lg:h-[520px]">
         {showMark ? (
           <Suspense fallback={<StaticMark />}>
             <HeroMark onFail={() => setWebgl(false)} />

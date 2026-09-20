@@ -164,7 +164,7 @@ function App() {
               <main>
                 <Home />
                 <div className="cx-container" aria-label="Selected deployments">
-                  <Marquee items={DEPLOYED_FOR} className="border-y border-slate-400/10 py-4" />
+                  <Marquee items={DEPLOYED_FOR} className="border-y border-slate-400/10 py-3 md:py-4" />
                 </div>
                 <About />
                 <Stack />
